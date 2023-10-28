@@ -34,9 +34,9 @@ LTexture::LTexture(const LTexture & other)
     }
 }
 
-LTexture & LTexture::operator=(const LTexture & other)
+LTexture & LTexture::operator = (const LTexture & other)
 {
-    if (other.texture != nullptr)
+    if (this != &other && other.texture != nullptr)
     {
         copy(other);
     }
