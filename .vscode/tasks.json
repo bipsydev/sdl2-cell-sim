@@ -1,0 +1,58 @@
+{
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "g++ Build Project",
+            "command": "g++",
+            "args": [
+                // nano or cat this on Harper Ares: /usr/local/bin/CPP
+                // ALL GCC ARGS COPIED FROM CPP COMMAND ON HARPER ARES:
+                "-std=c++17",
+                "-Wall",
+                "-Wextra",
+                "-Wfloat-equal",
+                "-Winline",
+                "-Wunreachable-code",
+                "-Wredundant-decls",
+                "-Wconversion",
+                "-Wwrite-strings",
+                "-Wcast-qual",
+                "-Woverloaded-virtual",
+                "-Weffc++",
+                "-Wparentheses",
+                "-Wshadow",
+                "-Wold-style-cast",
+                "-Wconversion",
+                //"-Wunused-parameter", // not sure about this one
+                "-fno-gnu-keywords",
+                "-fdiagnostics-color=always",
+                "-pedantic",
+                // Defines
+                "-D", "TEMPLATE_SEPARATE_COMPILATION",
+                // Library linking
+                "-l", "SDL2",
+                "-l", "SDL2_image",
+                "-l", "SDL2_ttf",
+                "-l", "SDL2_gfx",
+                // Include directories
+                "-I", "./include",
+                "-g",
+                "src/*.cpp",
+                "-o",
+                "build/${workspaceFolderBasename}"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "Task for use with school."
+        }
+    ],
+    "version": "2.0.0"
+}

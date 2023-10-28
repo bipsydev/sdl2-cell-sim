@@ -1,0 +1,17 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "defines": [
+                "TEMPLATE_SEPARATE_COMPILATION"
+            ],
+            "compilerPath": "/usr/bin/g++",
+            "cppStandard": "c++17",
+            "includePath": [
+                "${default}",
+                "${workspaceFolder}/include"
+            ]
+        }
+    ],
+    "version": 4
+}
