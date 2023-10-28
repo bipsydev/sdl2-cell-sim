@@ -53,6 +53,12 @@ class Game // : public SDLGame //TODO common SDL2 Game functionality in common b
 
 public:
     Game();
+
+    // for memory safety
+    Game(const Game & other);
+    Game & operator = (const Game & other);
+    void copy(const Game & other);
+
     ~Game();
     int run();
 

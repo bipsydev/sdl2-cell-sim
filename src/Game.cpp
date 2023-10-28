@@ -42,6 +42,33 @@ Game::Game()
     load_time_texture.load_text(load_time_text.str(), TEXT_COLOR);
 }
 
+Game::Game(const Game & other)
+: Game()
+{
+    copy(other);
+}
+
+Game & Game::operator = (const Game & other)
+{
+    if (this != &other)
+    {
+        free_game_objects();
+        game_objects_init();
+        copy(other);
+    }
+    return *this;
+}
+
+void Game::copy(const Game & other)
+{
+    frames = other.frames;
+    x = other.x;
+    y = other.y;
+    paused = other.paused;
+    space_pressed = other.space_pressed;
+    direction = other.direction;
+}
+
 
 void Game::SDL_systems_init()
 {
@@ -236,7 +263,6 @@ int Game::run()
 
     return EXIT_SUCCESS;
 }
-
 
 Game::~Game()
 {
