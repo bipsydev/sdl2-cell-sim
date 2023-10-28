@@ -46,7 +46,7 @@ void LTimer::unpause()
         paused = false;
 
         start_ticks = SDL_GetTicks() - paused_ticks;
-        paused_ticks - 0;
+        paused_ticks = 0;
     }
 }
 

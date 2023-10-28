@@ -18,7 +18,7 @@ const int FONT_SIZE = 22;
 const SDL_Color TEXT_COLOR{0, 0, 0, 255};
 const int TEXT_PADDING = 6;
 
-int main(int argc, char * argv[])
+int main()
 {
     std::cout << "Hello!\n";
 
@@ -143,7 +143,8 @@ int main(int argc, char * argv[])
         }
 
         // calculate and correct fps with cap
-        float avg_fps = frames / (fps_timer.get_ticks() / 1000.0f);
+        float avg_fps = static_cast<float>(frames)
+                      / (static_cast<float>(fps_timer.get_ticks()) / 1000.0f);
         if (avg_fps > 2'000'000)
         {
             avg_fps = 0;
@@ -155,7 +156,7 @@ int main(int argc, char * argv[])
         // update game objects
         if (!paused)
         {
-            double step = 120.0f * delta / 1000.0f;
+            double step = 120.0f * static_cast<float>(delta) / 1000.0f;
             switch (direction)
             {
             case RIGHT:
@@ -200,7 +201,7 @@ int main(int argc, char * argv[])
         // draw a circle
         Sint16 x_i = static_cast<Sint16>(std::round(x));
         Sint16 y_i = static_cast<Sint16>(std::round(y));
-        int radius = 16;
+        Sint16 radius = 16;
         boxColor(renderer, x_i - radius / 2, y_i - radius / 2,
                         x_i + radius / 2, y_i + radius / 2,
                         0x00FFFFFF);

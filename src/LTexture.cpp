@@ -19,19 +19,49 @@ LTexture::LTexture(SDL_Renderer * renderer_ref)
 LTexture::LTexture(SDL_Renderer * renderer_ref, TTF_Font * font_ref)
 : texture{nullptr},
   width{0}, height{0},
+  file_path{""},
   renderer{renderer_ref},
   font{font_ref}
 { }
+
+
+LTexture::LTexture(const LTexture & other)
+: LTexture()
+{
+    if (other.texture != nullptr)
+    {
+        copy(other);
+    }
+}
+
+LTexture & LTexture::operator=(const LTexture & other)
+{
+    if (other.texture != nullptr)
+    {
+        copy(other);
+    }
+    return *this;
+}
+
+void LTexture::copy(const LTexture & other)
+{
+    free();
+    load(other.file_path); // sets width, height, file_path as well as load texture
+    renderer = other.renderer;
+    font = other.font;
+}
 
 LTexture::~LTexture()
 {
     free();
 }
 
+
 void LTexture::set_renderer(SDL_Renderer * renderer_ref)
 {
     renderer = renderer_ref;
 }
+
 
 #ifdef SDL_TTF_MAJOR_VERSION
 void LTexture::set_font(TTF_Font * font_ref)
@@ -69,6 +99,7 @@ bool LTexture::load(std::string path)
         {
             width = loaded_surface->w;
             height = loaded_surface->h;
+            file_path = path;
         }
 
         SDL_FreeSurface(loaded_surface);
@@ -79,17 +110,17 @@ bool LTexture::load(std::string path)
 }
 
 #ifdef SDL_TTF_MAJOR_VERSION
-bool LTexture::load_text(std::string text, SDL_Color color, TTF_Font * font)
+bool LTexture::load_text(std::string text, SDL_Color color, TTF_Font * font_override)
 {
     // Get rid of preexisting texture
     free();
 
     // use font from set_font if no font was provided
-    if (font == nullptr)
+    if (font_override == nullptr)
     {
-        if (this->font != nullptr)
+        if (font != nullptr)
         {
-            font = this->font;
+            font_override = font;
         }
         else
         {
@@ -99,7 +130,7 @@ bool LTexture::load_text(std::string text, SDL_Color color, TTF_Font * font)
     }
 
     // render text to a surface
-    SDL_Surface * text_surface = TTF_RenderText_Solid(font, text.c_str(), color);
+    SDL_Surface * text_surface = TTF_RenderText_Solid(font_override, text.c_str(), color);
     if (text_surface == nullptr)
     {
         std::cerr << "Unable to render text surface! SDL_TTF Error: " << TTF_GetError() << '\n';
@@ -167,7 +198,7 @@ void LTexture::render(int x, int y, SDL_Rect * clip, double angle,
     return render(renderer, x, y, clip, angle, center, flip);
 }
 
-void LTexture::render(SDL_Renderer * renderer, int x, int y, SDL_Rect * clip, double angle,
+void LTexture::render(SDL_Renderer * renderer_override, int x, int y, SDL_Rect * clip, double angle,
             SDL_Point * center, SDL_RendererFlip flip)
 {
     // screen space to render texture to
@@ -179,11 +210,18 @@ void LTexture::render(SDL_Renderer * renderer, int x, int y, SDL_Rect * clip, do
         render_quad.h = clip->h;
     }
 
-    if (renderer != nullptr)
+    // use saved renderer if override was not provided
+    if (renderer_override == nullptr)
+    {
+        renderer_override = renderer;
+    }
+
+    if (renderer_override != nullptr)
     {
         // Render to screen!
-        SDL_RenderCopyEx(renderer, texture, clip, &render_quad, angle, center, flip);
+        SDL_RenderCopyEx(renderer_override, texture, clip, &render_quad, angle, center, flip);
     }
+    // if we still didn't get a renderer...
     else
     {
         std::cerr << "Could not render LTexture, renderer was not set!\n";
