@@ -20,13 +20,14 @@ namespace LCode
 
 class Game // : public SDLGame //TODO common SDL2 Game functionality in common base class
 {
-    static const int SCREEN_WIDTH;
-    static const int SCREEN_HEIGHT;
-    static const int SCREEN_FPS;
-    static const double SCREEN_TICKS_PER_FRAME;
-    static const int FONT_SIZE;
-    static const SDL_Color TEXT_COLOR;
-    static const int TEXT_PADDING;
+    // inline initialization of static variables
+    static inline const int SCREEN_WIDTH = 1280;
+    static inline const int SCREEN_HEIGHT = 720;
+    static inline const int SCREEN_FPS = 60;
+    static inline const double SCREEN_TICKS_PER_FRAME = 1000.0f / SCREEN_FPS;
+    static inline const int FONT_SIZE = 22;
+    static inline const SDL_Color TEXT_COLOR{0, 0, 0, 255};
+    static inline const int TEXT_PADDING = 6;
 
     // SDL dynamic objects
     SDL_Window * window;

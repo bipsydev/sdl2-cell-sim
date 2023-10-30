@@ -5,16 +5,6 @@
 namespace LCode
 {
 
-// static member initialization
-const int Game::SCREEN_WIDTH = 1280;
-const int Game::SCREEN_HEIGHT = 720;
-const int Game::SCREEN_FPS = 60;
-const double Game::SCREEN_TICKS_PER_FRAME = 1000.0f / SCREEN_FPS;
-const int Game::FONT_SIZE = 22;
-const SDL_Color Game::TEXT_COLOR{0, 0, 0, 255};
-const int Game::TEXT_PADDING = 6;
-
-
 // constructor / initialization
 Game::Game()
 : window{nullptr},
