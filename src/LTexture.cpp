@@ -1,4 +1,5 @@
 #include "LTexture.hpp"
+#include "LException.hpp"
 
 #include <SDL2/SDL_image.h>
 
@@ -81,7 +82,8 @@ bool LTexture::load(std::string path)
     SDL_Surface * loaded_surface = IMG_Load(path.c_str());
     if (loaded_surface == nullptr)
     {
-        std::cerr << "Unable to load image file at \"" << path << "\"! SDL_image Error: " << IMG_GetError() << '\n';
+        throw LException{"Unable to load image file into surface at \"" + path
+                + "\"! SDL_image Error: " + std::string{IMG_GetError()} + '\n'};
     }
     else
     {
@@ -93,7 +95,8 @@ bool LTexture::load(std::string path)
         new_texture = SDL_CreateTextureFromSurface(renderer, loaded_surface);
         if (new_texture == nullptr)
         {
-            std::cerr << "Unable to create texture from loaded surface from file \"" << path << "\"! SDL Error: " << SDL_GetError() << '\n';
+            throw LException{"Unable to create texture from loaded surface from file \""
+                + path + "\"! SDL Error: " + std::string{SDL_GetError()} + '\n'};
         }
         else
         {
@@ -124,8 +127,7 @@ bool LTexture::load_text(std::string text, SDL_Color color, TTF_Font * font_over
         }
         else
         {
-            std::cerr << "No font provided by load_text or set with set_font!\n";
-            return 0;
+            throw LException{"No font provided by load_text or set with set_font!\n"};
         }
     }
 
@@ -133,7 +135,8 @@ bool LTexture::load_text(std::string text, SDL_Color color, TTF_Font * font_over
     SDL_Surface * text_surface = TTF_RenderText_Solid(font_override, text.c_str(), color);
     if (text_surface == nullptr)
     {
-        std::cerr << "Unable to render text surface! SDL_TTF Error: " << TTF_GetError() << '\n';
+        throw LException{"Unable to render text surface! SDL_TTF Error: "
+                         + std::string{TTF_GetError()} + '\n'};
     }
     else
     {
@@ -141,7 +144,8 @@ bool LTexture::load_text(std::string text, SDL_Color color, TTF_Font * font_over
         texture = SDL_CreateTextureFromSurface(renderer, text_surface);
         if (texture == nullptr)
         {
-            std::cerr << "Unable to create texture from rendered text surface! SDL Error: " << SDL_GetError() << '\n';
+            throw LException{"Unable to create texture from rendered text surface! SDL Error: "
+                             + std::string{SDL_GetError()} + '\n'};
         }
         else
         {
@@ -211,7 +215,7 @@ void LTexture::render(SDL_Renderer * renderer_override, int x, int y, SDL_Rect *
     }
 
     // use saved renderer if override was not provided
-    if (renderer_override == nullptr)
+    if (renderer_override == nullptr && renderer != nullptr)
     {
         renderer_override = renderer;
     }
@@ -224,7 +228,7 @@ void LTexture::render(SDL_Renderer * renderer_override, int x, int y, SDL_Rect *
     // if we still didn't get a renderer...
     else
     {
-        std::cerr << "Could not render LTexture, renderer was not set!\n";
+        throw LException{"Could not render LTexture, renderer was not set!\n"};
     }
 }
 
