@@ -38,6 +38,7 @@
                 "-I", "./include",
                 "-g",
                 "src/*.cpp",
+                "src/entities/*.cpp",
                 "-o",
                 "build/${workspaceFolderBasename}"
             ],
