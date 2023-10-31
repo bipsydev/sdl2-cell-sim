@@ -22,10 +22,9 @@ Game::Game()
   fps_timer{}, cap_timer{}, load_timer{},
   fps_texture{}, load_time_texture{}, press_spacebar_texture{},
   frames{0},
+  paused{true},
   time_text{},
-  x{0}, y{SCREEN_HEIGHT / 2.0},
-  paused{true}, space_pressed{false},
-  direction{RIGHT}
+  cell{0, SCREEN_HEIGHT / 2.0}
 {
     load_timer.start();
 
@@ -61,11 +60,7 @@ Game & Game::operator = (const Game & other)
 void Game::copy(const Game & other)
 {
     frames = other.frames;
-    x = other.x;
-    y = other.y;
-    paused = other.paused;
-    space_pressed = other.space_pressed;
-    direction = other.direction;
+    cell = other.cell;
 }
 
 
@@ -170,7 +165,7 @@ int Game::run()
                 {
                     std::cout << "SPACE PRESSED \n";
                     paused = !paused;
-                    space_pressed = true;
+                    cell.press_space();
                 }
             }
         }
@@ -189,25 +184,7 @@ int Game::run()
         // update game objects
         if (!paused)
         {
-            double step = 120.0f * static_cast<float>(delta) / 1000.0f;
-            switch (direction)
-            {
-            case RIGHT:
-                x += step;
-                break;
-            case LEFT:
-                x -= step;
-                break;
-            }
-
-            if (x > SCREEN_WIDTH)
-            {
-                direction = LEFT;
-            }
-            else if (x < 0)
-            {
-                direction = RIGHT;
-            }
+            cell.update(delta);
         }
 
         // Update and render text
@@ -225,23 +202,14 @@ int Game::run()
         // Render textures
         load_time_texture.render(TEXT_PADDING, TEXT_PADDING);
         fps_texture.render(TEXT_PADDING, TEXT_PADDING * 2 + FONT_SIZE);
-        if (!space_pressed)
+        if (!cell.was_space_pressed())
         {
             press_spacebar_texture.render(TEXT_PADDING,
                                           TEXT_PADDING * 3 + FONT_SIZE * 2);
         }
 
         // draw a circle
-        Sint16 x_i = static_cast<Sint16>(std::round(x));
-        Sint16 y_i = static_cast<Sint16>(std::round(y));
-        Sint16 radius = 16;
-        boxColor(renderer, x_i - radius / 2, y_i - radius / 2,
-                        x_i + radius / 2, y_i + radius / 2,
-                        0x00FFFFFF);
-        filledCircleRGBA(renderer,
-                         x_i, y_i,
-                         radius,
-                         0xFF, 0x00, 0x00, 0xFF);
+        cell.draw(renderer);
         
         // Update screen
         SDL_RenderPresent(renderer);

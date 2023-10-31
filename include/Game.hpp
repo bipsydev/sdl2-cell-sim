@@ -4,6 +4,7 @@
 
 #include "LTimer.hpp"
 #include "LTexture.hpp"
+#include "entities/Cell.hpp"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
@@ -16,6 +17,29 @@ namespace LCode
 
 class Game // : public SDLGame //TODO common SDL2 Game functionality in common base class
 {
+    // SDL dynamic objects
+    SDL_Window * window;
+    SDL_Renderer * renderer;
+    TTF_Font * font;
+
+    // Timers
+    LTimer fps_timer,
+           cap_timer,
+           load_timer;
+
+    // Textures
+    LTexture fps_texture,
+             load_time_texture,
+             press_spacebar_texture;
+
+    // Game Variables
+    int frames;
+    bool paused;
+    std::stringstream time_text;
+    // circle position
+    Cell cell;
+
+public:
     // inline initialization of static variables
     static inline const int SCREEN_WIDTH = 1280;
     static inline const int SCREEN_HEIGHT = 720;
@@ -25,30 +49,6 @@ class Game // : public SDLGame //TODO common SDL2 Game functionality in common b
     static inline const SDL_Color TEXT_COLOR{0, 0, 0, 255};
     static inline const int TEXT_PADDING = 6;
 
-    // SDL dynamic objects
-    SDL_Window * window;
-    SDL_Renderer * renderer;
-    TTF_Font * font;
-
-    // Timers
-    LTimer fps_timer, cap_timer, load_timer;
-
-    // Textures
-    LTexture fps_texture; // use window renderer, previously loaded font
-    LTexture load_time_texture;
-    LTexture press_spacebar_texture;
-
-    // Game Variables
-    int frames;
-    std::stringstream time_text;
-    // circle position
-    double x, y;
-    bool paused;
-    bool space_pressed;
-
-    enum Directions { LEFT, RIGHT } direction;
-
-public:
     Game();
 
     // for memory safety
