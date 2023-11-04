@@ -14,7 +14,7 @@ Cell::Cell(float x, float y)
   color{rand_int<Uint8>(0x00, 0xFF), rand_int<Uint8>(0x00, 0xFF),
         rand_int<Uint8>(0x00, 0xFF), rand_int<Uint8>(0x88, 0xFF)},
   radius{rand_int<Sint16>(16, 128)},
-  speed{static_cast<float>(rand_double(60.0f, 240.0f))}
+  speed{rand_float(60.0f, 240.0f)}
 { }
 
 void Cell::update(double delta_ms)

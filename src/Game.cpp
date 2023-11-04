@@ -31,6 +31,8 @@ Game::Game()
 {
     load_timer.start();
 
+    seed_rand();
+
     SDL_systems_init();
     SDL_objects_init();
     game_objects_init();
@@ -172,15 +174,22 @@ int Game::run()
                 switch (e.key.keysym.scancode)
                 {
                 case SDL_SCANCODE_SPACE:
+                {
                     std::cout << "SPACE PRESSED \n";
                     paused = !paused;
                     space_pressed = true;
                     break;
+                }
                 case SDL_SCANCODE_A:
+                {
                     std::cout << "Adding a cell...\n";
-                    float random_x = rand_double(0, SCREEN_WIDTH);
-                    float random_y = rand_double(0, SCREEN_HEIGHT);
+                    float random_x = rand_float<float>(0, SCREEN_WIDTH);
+                    float random_y = rand_float<float>(0, SCREEN_HEIGHT);
                     entities.push_back(new Cell{random_x, random_y});
+                    break;
+                }
+                default:
+                    break;
                 }
             }
         }

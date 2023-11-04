@@ -15,7 +15,7 @@ namespace LCode
  * @brief Call at start of main() to seed the
  *        psuedo-random number generator
  */
-inline void seed_rand(bool shred)
+inline void seed_rand(bool shred = false)
 {
     srand(static_cast<unsigned int>(time(nullptr)));
     // shred some numbers since the first is almost always the same
@@ -35,24 +35,26 @@ inline void seed_rand(bool shred)
 template <typename IntegerT>
 inline IntegerT rand_int(IntegerT min, IntegerT max)
 {
-    return rand() / (RAND_MAX/(max-min+1) + 1) + min;
+    return static_cast<IntegerT>(rand() / (RAND_MAX/(max-min+1) + 1) + min);
 }
 
 /**
  * @brief Random floating-point decimal number from [0.0, 1.0]
  */
-inline double rand_double()
+template <typename FloatT>
+inline FloatT rand_float()
 {
-    return static_cast<double>(rand_int(0, RAND_MAX))
-            / static_cast<double>(RAND_MAX);
+    return static_cast<FloatT>(rand_int(0, RAND_MAX))
+            / static_cast<FloatT>(RAND_MAX);
 }
 
 /**
  * @brief Random floating-point decimal number from [min, max]
  */
-inline double rand_double(double min, double max)
+template <typename FloatT>
+inline FloatT rand_float(FloatT min, FloatT max)
 {
-    return rand_double() * (max - min) + min;
+    return rand_float<FloatT>() * (max - min) + min;
 }
 
 /**
@@ -70,7 +72,7 @@ inline char rand_char(char min = 'A', char max = 'z')
  */
 inline bool event_occured(double percent_chance)
 {
-    return rand_double() <= percent_chance;
+    return rand_float<double>() <= percent_chance;
 }
 
 }
