@@ -8,6 +8,14 @@
 namespace LCode
 {
 
+Cell::Cell()
+: Cell(Game::get_random_screen_point())
+{ }
+
+Cell::Cell(SDL_FPoint new_pos)
+: Cell(new_pos.x, new_pos.y)
+{ }
+
 Cell::Cell(float x, float y)
 : LEntity(x, y),
   direction{rand_int(0, 1)? LEFT : RIGHT},
@@ -48,7 +56,7 @@ void Cell::draw(SDL_Renderer * renderer)
                       x_i + radius, y_i + radius,
                       // use opposite color
                       0xFF - color.r, 0xFF - color.g,
-                      0xFF - color.b, color.a / 2);
+                      0xFF - color.b, color.a / 4);
     filledCircleRGBA(renderer,
                      x_i, y_i,
                      radius,

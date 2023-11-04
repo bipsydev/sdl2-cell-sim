@@ -15,6 +15,7 @@ protected:
 
 public:
     LEntity();
+    LEntity(SDL_FPoint new_pos);
     LEntity(float x, float y);
 
     virtual ~LEntity() = default;

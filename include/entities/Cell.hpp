@@ -18,6 +18,8 @@ class Cell : public LEntity
     float speed;
 
 public:
+    Cell();
+    Cell(SDL_FPoint new_pos);
     Cell(float x, float y);
 
     void update(double delta_ms) override;

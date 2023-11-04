@@ -15,6 +15,22 @@
 namespace LCode
 {
 
+// ---- STATIC functions ----
+
+SDL_FPoint Game::get_random_screen_point()
+{
+    return SDL_FPoint{get_random_screen_x(),
+                      get_random_screen_y()};
+}
+
+float Game::get_random_screen_x()
+{ return rand_float<float>(0, SCREEN_WIDTH); }
+
+float Game::get_random_screen_y()
+{ return rand_float<float>(0, SCREEN_HEIGHT); }
+
+
+
 // constructor / initialization
 Game::Game()
 : window{nullptr},
@@ -147,7 +163,7 @@ void Game::game_objects_init()
     press_a_texture.load_text("A: Add a cell", TEXT_COLOR);
 
     // game objects
-    entities.push_back(new Cell{0, SCREEN_HEIGHT / 2.0});
+    entities.push_back(new Cell{SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f});
 }
 
 
@@ -183,9 +199,7 @@ int Game::run()
                 case SDL_SCANCODE_A:
                 {
                     std::cout << "Adding a cell...\n";
-                    float random_x = rand_float<float>(0, SCREEN_WIDTH);
-                    float random_y = rand_float<float>(0, SCREEN_HEIGHT);
-                    entities.push_back(new Cell{random_x, random_y});
+                    entities.push_back(new Cell);
                     break;
                 }
                 default:
