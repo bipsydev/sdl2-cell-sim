@@ -239,9 +239,17 @@ Game::~Game()
 
 void Game::free_game_objects()
 {
+    // free game textures
     fps_texture.free();
     load_time_texture.free();
     press_spacebar_texture.free();
+
+    // free game objects
+    for (size_t i = 0; i < entities.size(); ++i)
+    {
+        delete entities[i];
+    }
+    entities.clear();
 }
 
 void Game::free_SDL_objects()
