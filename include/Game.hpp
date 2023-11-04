@@ -24,7 +24,6 @@ class Game // : public SDLGame //TODO common SDL2 Game functionality in common b
 
     // Timers
     LTimer fps_timer,
-           cap_timer,
            load_timer;
 
     // Textures

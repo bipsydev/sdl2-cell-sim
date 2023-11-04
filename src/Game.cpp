@@ -19,7 +19,7 @@ Game::Game()
 : window{nullptr},
   renderer{nullptr},
   font{nullptr},
-  fps_timer{}, cap_timer{}, load_timer{},
+  fps_timer{}, load_timer{},
   fps_texture{}, load_time_texture{}, press_spacebar_texture{},
   frames{0},
   paused{true},
@@ -106,7 +106,8 @@ void Game::SDL_objects_init()
                          + std::string{SDL_GetError()} + '\n'};
     }
 
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED
+                                            | SDL_RENDERER_PRESENTVSYNC);
     if (renderer == nullptr)
     {
         throw LException{"Could not create SDL2 Renderer: "
@@ -150,8 +151,6 @@ int Game::run()
     // ---- MAIN LOOP ----
     while (running)
     {
-        cap_timer.start();
-
         // handle event queue
         while(SDL_PollEvent(&e) != 0)
         {
@@ -212,19 +211,10 @@ int Game::run()
         cell.draw(renderer);
         
         // Update screen
+        // this function waits for the monitor refresh rate
+        // when the renderer is given the option SDL_RENDERER_PRESENTVSYNC
         SDL_RenderPresent(renderer);
         ++frames;
-
-        // if frame finished early...
-        int frame_ticks = cap_timer.get_ticks();
-        if (frame_ticks < SCREEN_TICKS_PER_FRAME)
-        {
-            Uint32 delay = static_cast<Uint32>(SCREEN_TICKS_PER_FRAME
-                                        - static_cast<double>(frame_ticks));
-            //std::cout << "waiting " << delay << "...\n";
-            // ... wait the remaining time
-            SDL_Delay(delay);
-        }
 
     }
 
