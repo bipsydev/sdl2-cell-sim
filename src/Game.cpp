@@ -39,7 +39,7 @@ Game::Game()
   fps_timer{}, load_timer{},
   fps_avg_texture{}, fps_cur_texture{}, load_time_texture{},
   press_spacebar_texture{}, press_a_texture{},
-  frames{0},
+  frames{0}, running{false}, last_frame_time{0}, delta{0},
   paused{true},
   space_pressed{false},
   time_text_avg{}, time_text_cur{},
@@ -171,114 +171,143 @@ void Game::game_objects_init()
 
 int Game::run()
 {
-    SDL_Event e;        // captures current event from event queue
-    frames = 0;         // reset the frame count
-    bool running = true;        // flag to exit from run loop
-    double last_frame_time = 0; // (ms) var to save previous frame time to calculate delta
-    double delta = 0;           // the milliseconds since the last frame
-    fps_timer.start();  // start the FPS timer
+    SDL_Event e;         // captures current event from event queue
+    frames = 0;          // reset the frame count
+    running = true;      // flag to exit from run loop
+    last_frame_time = 0; // (ms) var to save previous frame time to calculate delta
+    delta = 0;           // the milliseconds since the last frame
+    fps_timer.start();   // start the FPS timer
     // ---- MAIN LOOP ----
     while (running)
     {
-        // handle event queue
-        while(SDL_PollEvent(&e) != 0)
+        handle_events(e);
+        update();
+        draw();
+        ++frames;
+    }
+    return EXIT_SUCCESS;
+}
+
+void Game::handle_events(SDL_Event & e)
+{
+    // handle event queue
+    while(SDL_PollEvent(&e) != 0)
+    {
+        if (e.type == SDL_QUIT)
         {
-            if (e.type == SDL_QUIT)
+            running = false;
+        }
+        if (e.type == SDL_KEYDOWN)
+        {
+            switch (e.key.keysym.scancode)
             {
-                running = false;
-            }
-            if (e.type == SDL_KEYDOWN && !e.key.repeat)
+            case SDL_SCANCODE_SPACE:
             {
-                switch (e.key.keysym.scancode)
-                {
-                case SDL_SCANCODE_SPACE:
+                if (!e.key.repeat)
                 {
                     std::cout << "SPACE PRESSED \n";
                     paused = !paused;
                     space_pressed = true;
-                    break;
                 }
-                case SDL_SCANCODE_A:
+                break;
+            }
+            case SDL_SCANCODE_A:
+            {
+                const Uint8 * keystate = SDL_GetKeyboardState(nullptr);
+                if (keystate[SDL_SCANCODE_LCTRL] &&
+                    !e.key.repeat || keystate[SDL_SCANCODE_LSHIFT])
+                {
+                    std::cout << "Adding 10 cells...\n";
+                    for (Uint8 i = 0; i < 10; ++i)
+                    {
+                        entities.push_back(new Cell);
+                    }
+                }
+                else if (!e.key.repeat || keystate[SDL_SCANCODE_LSHIFT])
                 {
                     std::cout << "Adding a cell...\n";
                     entities.push_back(new Cell);
-                    break;
                 }
-                default:
-                    break;
-                }
+                break;
+            }
+            default:
+                break;
             }
         }
+    }
+}
 
-        // calculate and correct fps with cap
-        double avg_fps = static_cast<double>(frames)
-                      / fps_timer.get_seconds();
-        if (avg_fps > 2'000'000)
-        {
-            avg_fps = 0;
-        }
-        // update delta time (in ms)
-        delta = fps_timer.get_ms() - last_frame_time;
-        last_frame_time = fps_timer.get_ms();
+void Game::update()
+{
+    // calculate and correct fps with cap
+    double avg_fps = static_cast<double>(frames)
+                    / fps_timer.get_seconds();
+    if (avg_fps > 2'000'000)
+    {
+        avg_fps = 0;
+    }
+    // update delta time (in ms)
+    delta = fps_timer.get_ms() - last_frame_time;
+    last_frame_time = fps_timer.get_ms();
 
-        double cur_fps = 1000.0 / delta;
+    double cur_fps = 1000.0 / delta;
 
-        // update game objects
-        if (!paused)
-        {
-            entities.push_back(new Cell);
-            for (LEntity * entity : entities)
-            {
-                entity->update(delta);
-            }
-        }
+    // Update text
+    time_text_avg.str("");
+    time_text_avg << "Average FPS: " << avg_fps;
 
-        // Update and render text
-        time_text_avg.str("");
-        time_text_avg << "Average FPS: " << avg_fps;
-        if ( ! fps_avg_texture.load_text(time_text_avg.str(), TEXT_COLOR) )
-        {
-            std::cerr << "Unable to render FPS Texture!\n";
-        }
+    time_text_cur.str("");
+    time_text_cur << "Current FPS: " << cur_fps;
 
-        time_text_cur.str("");
-        time_text_cur << "Current FPS: " << cur_fps;
-        if ( ! fps_cur_texture.load_text(time_text_cur.str(), TEXT_COLOR) )
-        {
-            std::cerr << "Unable to render FPS Texture!\n";
-        }
-
-        // Clear screen
-        SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-        SDL_RenderClear(renderer);
-
-        // draw all entities
+    // update game objects
+    if (!paused)
+    {
         for (LEntity * entity : entities)
         {
-            entity->draw(renderer);
+            entity->update(delta);
         }
+    }
+}
 
-        // Render text textures
-        load_time_texture.render(TEXT_PADDING, TEXT_PADDING);
-        fps_avg_texture.render(TEXT_PADDING, TEXT_PADDING * 2 + FONT_SIZE);
-        fps_cur_texture.render(TEXT_PADDING, TEXT_PADDING * 3 + FONT_SIZE * 2);
-        press_a_texture.render(TEXT_PADDING,
-                               TEXT_PADDING * 4 + FONT_SIZE * 3);
-        if (!space_pressed)
-        {
-            press_spacebar_texture.render(TEXT_PADDING,
-                                          TEXT_PADDING * 5 + FONT_SIZE * 4);
-        }
-        
-        // Update screen
-        // this function waits for the monitor refresh rate
-        // when the renderer is given the option SDL_RENDERER_PRESENTVSYNC
-        SDL_RenderPresent(renderer);
-        ++frames;
-
+void Game::draw()
+{
+    // Render string text to texture
+    if ( ! fps_avg_texture.load_text(time_text_avg.str(), TEXT_COLOR) )
+    {
+        std::cerr << "Unable to render FPS Texture!\n";
     }
 
-    return EXIT_SUCCESS;
+    if ( ! fps_cur_texture.load_text(time_text_cur.str(), TEXT_COLOR) )
+    {
+        std::cerr << "Unable to render FPS Texture!\n";
+    }
+
+    // Clear screen
+    SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+    SDL_RenderClear(renderer);
+
+    // draw all entities
+    for (LEntity * entity : entities)
+    {
+        entity->draw(renderer);
+    }
+
+    // Draw text textures
+    load_time_texture.render(TEXT_PADDING, TEXT_PADDING);
+    fps_avg_texture.render(TEXT_PADDING, TEXT_PADDING * 2 + FONT_SIZE);
+    fps_cur_texture.render(TEXT_PADDING, TEXT_PADDING * 3 + FONT_SIZE * 2);
+    press_a_texture.render(TEXT_PADDING,
+                            TEXT_PADDING * 4 + FONT_SIZE * 3);
+    if (!space_pressed)
+    {
+        press_spacebar_texture.render(TEXT_PADDING,
+                                        TEXT_PADDING * 5 + FONT_SIZE * 4);
+    }
+    
+    // Update screen
+    // this function waits for the monitor refresh rate
+    // when the renderer is given the option SDL_RENDERER_PRESENTVSYNC
+    SDL_RenderPresent(renderer);
 }
 
 Game::~Game()
