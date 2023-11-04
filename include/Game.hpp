@@ -4,12 +4,13 @@
 
 #include "LTimer.hpp"
 #include "LTexture.hpp"
-#include "entities/Cell.hpp"
+#include "LEntity.hpp"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 
 #include <sstream>
+#include <vector>
 
 
 namespace LCode
@@ -34,9 +35,10 @@ class Game // : public SDLGame //TODO common SDL2 Game functionality in common b
     // Game Variables
     int frames;
     bool paused;
+    bool space_pressed;
     std::stringstream time_text;
-    // circle position
-    Cell cell;
+    // list of active game entities
+    std::vector<LEntity *> entities;
 
 public:
     // inline initialization of static variables

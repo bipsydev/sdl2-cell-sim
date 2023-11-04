@@ -10,19 +10,8 @@ namespace LCode
 
 Cell::Cell(float x, float y)
 : LEntity(x, y),
-  space_pressed{false},
   direction{RIGHT}
 { }
-
-void Cell::press_space()
-{
-    space_pressed = true;
-}
-
-bool Cell::was_space_pressed()
-{
-    return space_pressed;
-}
 
 void Cell::update(double delta_ms)
 {
@@ -52,9 +41,9 @@ void Cell::draw(SDL_Renderer * renderer)
     Sint16 x_i = static_cast<Sint16>(std::round(pos.x));
     Sint16 y_i = static_cast<Sint16>(std::round(pos.y));
     Sint16 radius = 16;
-    boxColor(renderer, x_i - radius / 2, y_i - radius / 2,
-                       x_i + radius / 2, y_i + radius / 2,
-                       0x00FFFFFF);
+    boxRGBA(renderer, x_i - radius, y_i - radius,
+                      x_i + radius, y_i + radius,
+                      0xFF, 0x00, 0xFF, 0xFF);
     filledCircleRGBA(renderer,
                      x_i, y_i,
                      radius,

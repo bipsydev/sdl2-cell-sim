@@ -1,11 +1,11 @@
 #include "Game.hpp"
 
 #include "LException.hpp"
+#include "entities/Cell.hpp"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
-#include <SDL2/SDL2_gfxPrimitives.h>
 
 #include <iostream>
 #include <sstream>
@@ -23,8 +23,9 @@ Game::Game()
   fps_texture{}, load_time_texture{}, press_spacebar_texture{},
   frames{0},
   paused{true},
+  space_pressed{false},
   time_text{},
-  cell{0, SCREEN_HEIGHT / 2.0}
+  entities{}
 {
     load_timer.start();
 
@@ -60,7 +61,7 @@ Game & Game::operator = (const Game & other)
 void Game::copy(const Game & other)
 {
     frames = other.frames;
-    cell = other.cell;
+    entities = other.entities; // copy over LEntity elements
 }
 
 
@@ -137,6 +138,8 @@ void Game::game_objects_init()
     press_spacebar_texture.set_font(font);
     press_spacebar_texture.load_text("Press Spacebar!", TEXT_COLOR);
 
+    // game objects
+    entities.push_back(new Cell{0, SCREEN_HEIGHT / 2.0});
 }
 
 
@@ -164,7 +167,7 @@ int Game::run()
                 {
                     std::cout << "SPACE PRESSED \n";
                     paused = !paused;
-                    cell.press_space();
+                    space_pressed = true;
                 }
             }
         }
@@ -183,7 +186,10 @@ int Game::run()
         // update game objects
         if (!paused)
         {
-            cell.update(delta);
+            for (LEntity * entity : entities)
+            {
+                entity->update(delta);
+            }
         }
 
         // Update and render text
@@ -201,14 +207,17 @@ int Game::run()
         // Render textures
         load_time_texture.render(TEXT_PADDING, TEXT_PADDING);
         fps_texture.render(TEXT_PADDING, TEXT_PADDING * 2 + FONT_SIZE);
-        if (!cell.was_space_pressed())
+        if (!space_pressed)
         {
             press_spacebar_texture.render(TEXT_PADDING,
                                           TEXT_PADDING * 3 + FONT_SIZE * 2);
         }
 
         // draw a circle
-        cell.draw(renderer);
+        for (LEntity * entity : entities)
+        {
+            entity->draw(renderer);
+        }
         
         // Update screen
         // this function waits for the monitor refresh rate

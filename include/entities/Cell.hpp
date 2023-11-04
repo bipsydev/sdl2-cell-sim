@@ -11,14 +11,10 @@ namespace LCode
 
 class Cell : public LEntity
 {
-    bool space_pressed;
     enum Directions { LEFT, RIGHT } direction;
 
 public:
     Cell(float x, float y);
-
-    void press_space();
-    bool was_space_pressed();
 
     void update(double delta_ms) override;
     void draw(SDL_Renderer * renderer) override;
