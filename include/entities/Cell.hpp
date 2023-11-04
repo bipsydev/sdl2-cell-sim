@@ -20,7 +20,7 @@ public:
     void press_space();
     bool was_space_pressed();
 
-    void update(Uint32 delta_ms) override;
+    void update(double delta_ms) override;
     void draw(SDL_Renderer * renderer) override;
 };
 

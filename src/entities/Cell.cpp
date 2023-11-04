@@ -24,7 +24,7 @@ bool Cell::was_space_pressed()
     return space_pressed;
 }
 
-void Cell::update(Uint32 delta_ms)
+void Cell::update(double delta_ms)
 {
     float step = 120.0f * static_cast<float>(delta_ms) / 1000.0f;
     switch (direction)

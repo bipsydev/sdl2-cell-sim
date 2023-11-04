@@ -18,7 +18,7 @@ public:
     LEntity(float x, float y);
 
     virtual ~LEntity() = default;
-    virtual void update(Uint32 delta_ms) = 0;
+    virtual void update(double delta_ms) = 0;
     virtual void draw(SDL_Renderer * renderer) = 0;
 
 };
