@@ -15,7 +15,7 @@ void LTimer::start()
     started = true;
     paused = false;
 
-    start_ticks = SDL_GetTicks();
+    start_ticks = SDL_GetPerformanceCounter();
     paused_ticks = 0;
 }
 
@@ -34,7 +34,7 @@ void LTimer::pause()
     {
         paused = true;
 
-        paused_ticks = SDL_GetTicks() - start_ticks;
+        paused_ticks = SDL_GetPerformanceCounter() - start_ticks;
         start_ticks = 0;
     }
 }
@@ -45,14 +45,14 @@ void LTimer::unpause()
     {
         paused = false;
 
-        start_ticks = SDL_GetTicks() - paused_ticks;
+        start_ticks = SDL_GetPerformanceCounter() - paused_ticks;
         paused_ticks = 0;
     }
 }
 
-Uint32 LTimer::get_ticks()
+Uint64 LTimer::get_ticks()
 {
-    Uint32 time = 0;
+    Uint64 time = 0;
 
     if (started)
     {
@@ -62,11 +62,22 @@ Uint32 LTimer::get_ticks()
         }
         else
         {
-            time = SDL_GetTicks() - start_ticks;
+            time = SDL_GetPerformanceCounter() - start_ticks;
         }
     }
 
     return time;
+}
+
+double LTimer::get_seconds()
+{
+    // divide by how many ticks in a second (SDL_GetPerformanceFrequency)
+    return static_cast<double>(get_ticks()) / static_cast<double>(SDL_GetPerformanceFrequency());
+}
+
+double LTimer::get_milliseconds()
+{
+    return get_seconds() * 1000.0;
 }
 
 bool LTimer::is_started()

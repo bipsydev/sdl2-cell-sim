@@ -33,10 +33,10 @@ Game::Game()
     game_objects_init();
 
     load_timer.pause();
-    Uint32 load_time = load_timer.get_ticks();
+    double load_time_ms = load_timer.get_ms();
 
     std::stringstream load_time_text;
-    load_time_text << "time to load: " << load_time << "ms";
+    load_time_text << "time to load: " << load_time_ms << " secs";
     load_time_texture.load_text(load_time_text.str(), TEXT_COLOR);
 }
 
@@ -145,8 +145,8 @@ int Game::run()
     SDL_Event e;        // captures current event from event queue
     frames = 0;         // reset the frame count
     bool running = true;        // flag to exit from run loop
-    Uint32 last_frame_time = 0; // var to save previous frame time to calculate delta
-    Uint32 delta = 0;           // the milliseconds since the last frame
+    double last_frame_time = 0; // (ms) var to save previous frame time to calculate delta
+    double delta = 0;           // the milliseconds since the last frame
     fps_timer.start();  // start the FPS timer
     // ---- MAIN LOOP ----
     while (running)
@@ -170,15 +170,15 @@ int Game::run()
         }
 
         // calculate and correct fps with cap
-        float avg_fps = static_cast<float>(frames)
-                      / (static_cast<float>(fps_timer.get_ticks()) / 1000.0f);
+        double avg_fps = static_cast<double>(frames)
+                      / fps_timer.get_seconds();
         if (avg_fps > 2'000'000)
         {
             avg_fps = 0;
         }
-        // update delta time
-        delta = fps_timer.get_ticks() - last_frame_time;
-        last_frame_time = fps_timer.get_ticks();
+        // update delta time (in ms)
+        delta = fps_timer.get_ms() - last_frame_time;
+        last_frame_time = fps_timer.get_ms();
 
         // update game objects
         if (!paused)

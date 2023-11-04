@@ -9,7 +9,7 @@ namespace LCode
 
 class LTimer
 {
-    Uint32 start_ticks,
+    Uint64 start_ticks,
            paused_ticks;
     bool paused,
          started;
@@ -21,7 +21,14 @@ public:
     void pause();
     void unpause();
 
-    Uint32 get_ticks();
+    Uint64 get_ticks();
+
+    double get_seconds();
+    double get_sec() { return get_seconds(); }
+    double get_s() { return get_seconds(); }
+
+    double get_milliseconds();
+    double get_ms() { return get_milliseconds(); }
     
     bool is_started();
     bool is_paused();
