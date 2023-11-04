@@ -30,7 +30,8 @@ class Game // : public SDLGame //TODO common SDL2 Game functionality in common b
     // Textures
     LTexture fps_texture,
              load_time_texture,
-             press_spacebar_texture;
+             press_spacebar_texture,
+             press_a_texture;
 
     // Game Variables
     int frames;

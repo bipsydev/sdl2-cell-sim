@@ -43,11 +43,11 @@ void Cell::draw(SDL_Renderer * renderer)
     Sint16 radius = 16;
     boxRGBA(renderer, x_i - radius, y_i - radius,
                       x_i + radius, y_i + radius,
-                      0xFF, 0x00, 0xFF, 0xFF);
+                      0xFF, 0x00, 0xFF, 0x88);
     filledCircleRGBA(renderer,
                      x_i, y_i,
                      radius,
-                     0xFF, 0x00, 0x00, 0xFF);
+                     0x00, 0xFF, 0x00, 0xFF);
 }
 
 } // namespace LCode

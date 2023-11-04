@@ -2,6 +2,7 @@
 
 #include "LException.hpp"
 #include "entities/Cell.hpp"
+#include "random.hpp"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
@@ -20,7 +21,8 @@ Game::Game()
   renderer{nullptr},
   font{nullptr},
   fps_timer{}, load_timer{},
-  fps_texture{}, load_time_texture{}, press_spacebar_texture{},
+  fps_texture{}, load_time_texture{},
+  press_spacebar_texture{}, press_a_texture{},
   frames{0},
   paused{true},
   space_pressed{false},
@@ -136,7 +138,11 @@ void Game::game_objects_init()
 
     press_spacebar_texture.set_renderer(renderer);
     press_spacebar_texture.set_font(font);
-    press_spacebar_texture.load_text("Press Spacebar!", TEXT_COLOR);
+    press_spacebar_texture.load_text("Spacebar: pause/unpause", TEXT_COLOR);
+
+    press_a_texture.set_renderer(renderer);
+    press_a_texture.set_font(font);
+    press_a_texture.load_text("A: Add a cell", TEXT_COLOR);
 
     // game objects
     entities.push_back(new Cell{0, SCREEN_HEIGHT / 2.0});
@@ -163,11 +169,18 @@ int Game::run()
             }
             if (e.type == SDL_KEYDOWN && !e.key.repeat)
             {
-                if (e.key.keysym.scancode == SDL_SCANCODE_SPACE)
+                switch (e.key.keysym.scancode)
                 {
+                case SDL_SCANCODE_SPACE:
                     std::cout << "SPACE PRESSED \n";
                     paused = !paused;
                     space_pressed = true;
+                    break;
+                case SDL_SCANCODE_A:
+                    std::cout << "Adding a cell...\n";
+                    float random_x = rand_double(0, SCREEN_WIDTH);
+                    float random_y = rand_double(0, SCREEN_HEIGHT);
+                    entities.push_back(new Cell{random_x, random_y});
                 }
             }
         }
@@ -207,13 +220,15 @@ int Game::run()
         // Render textures
         load_time_texture.render(TEXT_PADDING, TEXT_PADDING);
         fps_texture.render(TEXT_PADDING, TEXT_PADDING * 2 + FONT_SIZE);
+        press_a_texture.render(TEXT_PADDING,
+                               TEXT_PADDING * 3 + FONT_SIZE * 2);
         if (!space_pressed)
         {
             press_spacebar_texture.render(TEXT_PADDING,
-                                          TEXT_PADDING * 3 + FONT_SIZE * 2);
+                                          TEXT_PADDING * 4 + FONT_SIZE * 3);
         }
 
-        // draw a circle
+        // draw all entities
         for (LEntity * entity : entities)
         {
             entity->draw(renderer);
