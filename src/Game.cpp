@@ -37,12 +37,12 @@ Game::Game()
   renderer{nullptr},
   font{nullptr},
   fps_timer{}, load_timer{},
-  fps_texture{}, load_time_texture{},
+  fps_avg_texture{}, fps_cur_texture{}, load_time_texture{},
   press_spacebar_texture{}, press_a_texture{},
   frames{0},
   paused{true},
   space_pressed{false},
-  time_text{},
+  time_text_avg{}, time_text_cur{},
   entities{}
 {
     load_timer.start();
@@ -57,7 +57,7 @@ Game::Game()
     double load_time_ms = load_timer.get_ms();
 
     std::stringstream load_time_text;
-    load_time_text << "time to load: " << load_time_ms << " secs";
+    load_time_text << "time to load: " << load_time_ms << " ms";
     load_time_texture.load_text(load_time_text.str(), TEXT_COLOR);
 }
 
@@ -148,8 +148,10 @@ void Game::SDL_objects_init()
 void Game::game_objects_init()
 {
     // Game's dynamic resources
-    fps_texture.set_renderer(renderer);
-    fps_texture.set_font(font);
+    fps_avg_texture.set_renderer(renderer);
+    fps_avg_texture.set_font(font);
+    fps_cur_texture.set_renderer(renderer);
+    fps_cur_texture.set_font(font);
 
     load_time_texture.set_renderer(renderer);
     load_time_texture.set_font(font);
@@ -219,9 +221,12 @@ int Game::run()
         delta = fps_timer.get_ms() - last_frame_time;
         last_frame_time = fps_timer.get_ms();
 
+        double cur_fps = 1000.0 / delta;
+
         // update game objects
         if (!paused)
         {
+            entities.push_back(new Cell);
             for (LEntity * entity : entities)
             {
                 entity->update(delta);
@@ -229,9 +234,16 @@ int Game::run()
         }
 
         // Update and render text
-        time_text.str("");
-        time_text << "Average FPS (with cap): " << avg_fps;
-        if ( ! fps_texture.load_text(time_text.str(), TEXT_COLOR) )
+        time_text_avg.str("");
+        time_text_avg << "Average FPS: " << avg_fps;
+        if ( ! fps_avg_texture.load_text(time_text_avg.str(), TEXT_COLOR) )
+        {
+            std::cerr << "Unable to render FPS Texture!\n";
+        }
+
+        time_text_cur.str("");
+        time_text_cur << "Current FPS: " << cur_fps;
+        if ( ! fps_cur_texture.load_text(time_text_cur.str(), TEXT_COLOR) )
         {
             std::cerr << "Unable to render FPS Texture!\n";
         }
@@ -240,21 +252,22 @@ int Game::run()
         SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderClear(renderer);
 
-        // Render textures
-        load_time_texture.render(TEXT_PADDING, TEXT_PADDING);
-        fps_texture.render(TEXT_PADDING, TEXT_PADDING * 2 + FONT_SIZE);
-        press_a_texture.render(TEXT_PADDING,
-                               TEXT_PADDING * 3 + FONT_SIZE * 2);
-        if (!space_pressed)
-        {
-            press_spacebar_texture.render(TEXT_PADDING,
-                                          TEXT_PADDING * 4 + FONT_SIZE * 3);
-        }
-
         // draw all entities
         for (LEntity * entity : entities)
         {
             entity->draw(renderer);
+        }
+
+        // Render text textures
+        load_time_texture.render(TEXT_PADDING, TEXT_PADDING);
+        fps_avg_texture.render(TEXT_PADDING, TEXT_PADDING * 2 + FONT_SIZE);
+        fps_cur_texture.render(TEXT_PADDING, TEXT_PADDING * 3 + FONT_SIZE * 2);
+        press_a_texture.render(TEXT_PADDING,
+                               TEXT_PADDING * 4 + FONT_SIZE * 3);
+        if (!space_pressed)
+        {
+            press_spacebar_texture.render(TEXT_PADDING,
+                                          TEXT_PADDING * 5 + FONT_SIZE * 4);
         }
         
         // Update screen
@@ -278,7 +291,8 @@ Game::~Game()
 void Game::free_game_objects()
 {
     // free game textures
-    fps_texture.free();
+    fps_avg_texture.free();
+    fps_cur_texture.free();
     load_time_texture.free();
     press_spacebar_texture.free();
 

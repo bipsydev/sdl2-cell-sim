@@ -28,7 +28,8 @@ class Game // : public SDLGame //TODO common SDL2 Game functionality in common b
            load_timer;
 
     // Textures
-    LTexture fps_texture,
+    LTexture fps_avg_texture,
+             fps_cur_texture,
              load_time_texture,
              press_spacebar_texture,
              press_a_texture;
@@ -37,7 +38,8 @@ class Game // : public SDLGame //TODO common SDL2 Game functionality in common b
     int frames;
     bool paused;
     bool space_pressed;
-    std::stringstream time_text;
+    std::stringstream time_text_avg;
+    std::stringstream time_text_cur;
     // list of active game entities
     std::vector<LEntity *> entities;
 
