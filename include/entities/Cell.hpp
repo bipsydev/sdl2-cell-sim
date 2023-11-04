@@ -13,6 +13,10 @@ class Cell : public LEntity
 {
     enum Directions { LEFT, RIGHT } direction;
 
+    SDL_Color color;
+    Sint16 radius;
+    float speed;
+
 public:
     Cell(float x, float y);
 
