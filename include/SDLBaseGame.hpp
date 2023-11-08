@@ -12,6 +12,8 @@ namespace LCode
 
 class SDLBaseGame
 {
+    static bool systems_initialized;
+
 protected:
     // SDL dynamic objects
     SDL_Window * window;
@@ -22,6 +24,10 @@ protected:
 
 public:
     SDLBaseGame(int screen_width = 640, int screen_height = 480, int font_size = 16);
+
+    // Don't allow copying
+    SDLBaseGame(const SDLBaseGame & other) = delete;
+    SDLBaseGame & operator = (const SDLBaseGame & other) = delete;
 
     virtual ~SDLBaseGame();
 

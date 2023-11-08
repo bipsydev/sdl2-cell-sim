@@ -13,6 +13,9 @@
 namespace LCode
 {
 
+bool SDLBaseGame::systems_initialized = false;
+
+
 SDLBaseGame::SDLBaseGame(int screen_width, int screen_height, int font_size)
 : window{nullptr},
   renderer{nullptr},
@@ -20,9 +23,7 @@ SDLBaseGame::SDLBaseGame(int screen_width, int screen_height, int font_size)
   load_timer{}
 {
     load_timer.start();
-
     seed_rand();
-
     SDL_systems_init();
     SDL_objects_init(screen_width, screen_height, font_size);
 }
@@ -37,30 +38,35 @@ SDLBaseGame::~SDLBaseGame()
 
 void SDLBaseGame::SDL_systems_init()
 {
-    // SDL Init
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
+    if (!systems_initialized)
     {
-        throw LException{"Could not initialize SDL2: "
-                         + std::string{SDL_GetError()} + '\n'};
-    }
+        // SDL Init
+        if (SDL_Init(SDL_INIT_VIDEO) < 0)
+        {
+            throw LException{"Could not initialize SDL2: "
+                            + std::string{SDL_GetError()} + '\n'};
+        }
 
-    // Set linear texture filtering
-    if ( ! SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1") )
-    {
-        std::cerr << "Warning: Linear texture filtering not enabled!\n";
-    }
+        // Set linear texture filtering
+        if ( ! SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1") )
+        {
+            std::cerr << "Warning: Linear texture filtering not enabled!\n";
+        }
 
-    // SDL_image Init
-    if ( ! (IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) )
-    {
-        throw LException{"Could not initialize SDL_image for PNG loading! SDL_image Error: "
-                  + std::string{IMG_GetError()} + '\n'};
-    }
-    // SDL_ttf Init
-    if (TTF_Init() < 0)
-    {
-        throw LException{"Could not initialize SDL_ttf for font loading! SDL_ttf Error: "
-                  + std::string{TTF_GetError()} + '\n'};
+        // SDL_image Init
+        if ( ! (IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) )
+        {
+            throw LException{"Could not initialize SDL_image for PNG loading! SDL_image Error: "
+                    + std::string{IMG_GetError()} + '\n'};
+        }
+        // SDL_ttf Init
+        if (TTF_Init() < 0)
+        {
+            throw LException{"Could not initialize SDL_ttf for font loading! SDL_ttf Error: "
+                    + std::string{TTF_GetError()} + '\n'};
+        }
+
+        systems_initialized = true;
     }
 }
 
