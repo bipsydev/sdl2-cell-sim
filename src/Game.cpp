@@ -148,6 +148,9 @@ void Game::SDL_objects_init()
 void Game::game_objects_init()
 {
     // Game's dynamic resources
+    LTexture::set_fallback_renderer(renderer);
+    LTexture::set_fallback_font(font);
+    /*
     fps_avg_texture.set_renderer(renderer);
     fps_avg_texture.set_font(font);
     fps_cur_texture.set_renderer(renderer);
@@ -158,10 +161,13 @@ void Game::game_objects_init()
 
     press_spacebar_texture.set_renderer(renderer);
     press_spacebar_texture.set_font(font);
+    */
     press_spacebar_texture.load_text("Spacebar: pause/unpause", TEXT_COLOR);
 
+    /*
     press_a_texture.set_renderer(renderer);
     press_a_texture.set_font(font);
+    */
     press_a_texture.load_text("A: Add a cell", TEXT_COLOR);
 
     // game objects

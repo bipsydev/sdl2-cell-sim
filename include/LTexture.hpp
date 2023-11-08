@@ -18,8 +18,14 @@ class LTexture
 
     // the renderer used to create & render the textures
     SDL_Renderer * renderer;
+    // static fallback is used if renderer is nullptr on instance
+    static SDL_Renderer * fallback_renderer;
+
+    #ifdef SDL_TTF_MAJOR_VERSION
     // the font used for text rendering
     TTF_Font * font;
+    static TTF_Font * fallback_font;
+    #endif
 
 public:
     // initialize
@@ -38,9 +44,11 @@ public:
 
     // sets the renderer used by all LTextures during loading (should be the window renderer)
     void set_renderer(SDL_Renderer * renderer_ref);
+    static void set_fallback_renderer(SDL_Renderer * renderer_ref);
 
     #ifdef SDL_TTF_MAJOR_VERSION
     void set_font(TTF_Font * font_ref);
+    static void set_fallback_font(TTF_Font * font_ref);
     #endif
 
     // loads image at specified path
@@ -71,6 +79,14 @@ public:
 
     int get_width();
     int get_height();
+
+private:
+
+    SDL_Renderer * get_renderer(SDL_Renderer * renderer_override = nullptr);
+
+    #ifdef SDL_TTF_MAJOR_VERSION
+    TTF_Font * get_font(TTF_Font * font_override = nullptr);
+    #endif
 
 };
 

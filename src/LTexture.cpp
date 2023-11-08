@@ -8,7 +8,14 @@
 
 namespace LCode
 {
+// ---- Static initializers ----
+SDL_Renderer * LTexture::fallback_renderer = nullptr;
+#ifdef SDL_TTF_MAJOR_VERSION
+TTF_Font * LTexture::fallback_font = nullptr;
+#endif
 
+
+// constructors
 LTexture::LTexture()
 : LTexture(nullptr)
 { }
@@ -63,11 +70,21 @@ void LTexture::set_renderer(SDL_Renderer * renderer_ref)
     renderer = renderer_ref;
 }
 
+void LTexture::set_fallback_renderer(SDL_Renderer * renderer_ref)
+{
+    fallback_renderer = renderer_ref;
+}
+
 
 #ifdef SDL_TTF_MAJOR_VERSION
 void LTexture::set_font(TTF_Font * font_ref)
 {
     font = font_ref;
+}
+
+void LTexture::set_fallback_font(TTF_Font * font_ref)
+{
+    fallback_font = font_ref;
 }
 #endif
 
@@ -92,7 +109,7 @@ bool LTexture::load(std::string path)
                         SDL_MapRGB(loaded_surface->format, 0x00, 0xFF, 0xFF));
         
         // Create texture from surface pixels
-        new_texture = SDL_CreateTextureFromSurface(renderer, loaded_surface);
+        new_texture = SDL_CreateTextureFromSurface(get_renderer(), loaded_surface);
         if (new_texture == nullptr)
         {
             throw LException{"Unable to create texture from loaded surface from file \""
@@ -118,21 +135,8 @@ bool LTexture::load_text(std::string text, SDL_Color color, TTF_Font * font_over
     // Get rid of preexisting texture
     free();
 
-    // use font from set_font if no font was provided
-    if (font_override == nullptr)
-    {
-        if (font != nullptr)
-        {
-            font_override = font;
-        }
-        else
-        {
-            throw LException{"No font provided by load_text or set with set_font!\n"};
-        }
-    }
-
     // render text to a surface
-    SDL_Surface * text_surface = TTF_RenderText_Solid(font_override, text.c_str(), color);
+    SDL_Surface * text_surface = TTF_RenderText_Solid(get_font(font_override), text.c_str(), color);
     if (text_surface == nullptr)
     {
         throw LException{"Unable to render text surface! SDL_TTF Error: "
@@ -141,7 +145,7 @@ bool LTexture::load_text(std::string text, SDL_Color color, TTF_Font * font_over
     else
     {
         // create texture from surface pixels
-        texture = SDL_CreateTextureFromSurface(renderer, text_surface);
+        texture = SDL_CreateTextureFromSurface(get_renderer(), text_surface);
         if (texture == nullptr)
         {
             throw LException{"Unable to create texture from rendered text surface! SDL Error: "
@@ -151,6 +155,7 @@ bool LTexture::load_text(std::string text, SDL_Color color, TTF_Font * font_over
         {
             width = text_surface->w;
             height = text_surface->h;
+            file_path = "";
         }
 
         SDL_FreeSurface(text_surface);
@@ -214,22 +219,8 @@ void LTexture::render(SDL_Renderer * renderer_override, int x, int y, SDL_Rect *
         render_quad.h = clip->h;
     }
 
-    // use saved renderer if override was not provided
-    if (renderer_override == nullptr && renderer != nullptr)
-    {
-        renderer_override = renderer;
-    }
-
-    if (renderer_override != nullptr)
-    {
-        // Render to screen!
-        SDL_RenderCopyEx(renderer_override, texture, clip, &render_quad, angle, center, flip);
-    }
-    // if we still didn't get a renderer...
-    else
-    {
-        throw LException{"Could not render LTexture, renderer was not set!\n"};
-    }
+    // Render to screen!
+    SDL_RenderCopyEx(get_renderer(renderer_override), texture, clip, &render_quad, angle, center, flip);
 }
 
 int LTexture::get_width()
@@ -240,5 +231,50 @@ int LTexture::get_height()
 {
     return height;
 }
+
+
+// ---- PRIVATE METHODS ----
+
+SDL_Renderer * LTexture::get_renderer(SDL_Renderer * renderer_override)
+{
+    if (renderer_override != nullptr)
+    {
+        return renderer_override;
+    }
+    else if (renderer != nullptr)
+    {
+        return renderer;
+    }
+    else if (fallback_renderer != nullptr)
+    {
+        return fallback_renderer;
+    }
+    else
+    {
+        throw LException{"Operation failed: No SDL_Renderer* to retrieve!"};
+    }
+}
+
+#ifdef SDL_TTF_MAJOR_VERSION
+TTF_Font * LTexture::get_font(TTF_Font * font_override)
+{
+    if (font_override != nullptr)
+    {
+        return font_override;
+    }
+    else if (font != nullptr)
+    {
+        return font;
+    }
+    else if (fallback_font != nullptr)
+    {
+        return fallback_font;
+    }
+    else
+    {
+        throw LException{"Operation failed: No TTF_Font* to retrieve!"};
+    }
+}
+#endif
 
 } // namespace LCode
