@@ -2,6 +2,7 @@
 #ifndef LCODE_GAME_HPP
 #define LCODE_GAME_HPP
 
+#include <SDLBaseGame.hpp>
 #include "LTimer.hpp"
 #include "LTexture.hpp"
 #include "LEntity.hpp"
@@ -16,16 +17,10 @@
 namespace LCode
 {
 
-class Game // : public SDLGame //TODO common SDL2 Game functionality in common base class
+class Game : public SDLBaseGame
 {
-    // SDL dynamic objects
-    SDL_Window * window;
-    SDL_Renderer * renderer;
-    TTF_Font * font;
-
     // Timers
-    LTimer fps_timer,
-           load_timer;
+    LTimer fps_timer;
 
     // Textures
     LTexture fps_avg_texture,
@@ -37,8 +32,8 @@ class Game // : public SDLGame //TODO common SDL2 Game functionality in common b
     // Game Variables
     int frames;
     bool running;
-    double last_frame_time = 0;
-    double delta = 0;
+    double last_frame_time;
+    double delta;
     bool paused;
     bool space_pressed;
     std::stringstream time_text_avg;
@@ -62,25 +57,17 @@ public:
 
     Game();
 
-    // for memory safety
-    Game(const Game & other);
-    Game & operator = (const Game & other);
-    void copy(const Game & other);
-
     ~Game();
-    int run();
+    
+    int run() override;
 
 private:
-    void SDL_systems_init();
-    void SDL_objects_init();
     void game_objects_init();
 
     void handle_events(SDL_Event & e);
     void update();
     void draw();
 
-    void quit_SDL_systems();
-    void free_SDL_objects();
     void free_game_objects();
 };
 

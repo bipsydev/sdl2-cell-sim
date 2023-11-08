@@ -33,10 +33,8 @@ float Game::get_random_screen_y()
 
 // constructor / initialization
 Game::Game()
-: window{nullptr},
-  renderer{nullptr},
-  font{nullptr},
-  fps_timer{}, load_timer{},
+: SDLBaseGame(SCREEN_WIDTH, SCREEN_HEIGHT, FONT_SIZE),
+  fps_timer{},
   fps_avg_texture{}, fps_cur_texture{}, load_time_texture{},
   press_spacebar_texture{}, press_a_texture{},
   frames{0}, running{false}, last_frame_time{0}, delta{0},
@@ -45,12 +43,6 @@ Game::Game()
   time_text_avg{}, time_text_cur{},
   entities{}
 {
-    load_timer.start();
-
-    seed_rand();
-
-    SDL_systems_init();
-    SDL_objects_init();
     game_objects_init();
 
     load_timer.pause();
@@ -61,113 +53,9 @@ Game::Game()
     load_time_texture.load_text(load_time_text.str(), TEXT_COLOR);
 }
 
-Game::Game(const Game & other)
-: Game()
-{
-    copy(other);
-}
-
-Game & Game::operator = (const Game & other)
-{
-    if (this != &other)
-    {
-        free_game_objects();
-        game_objects_init();
-        copy(other);
-    }
-    return *this;
-}
-
-void Game::copy(const Game & other)
-{
-    frames = other.frames;
-    entities = other.entities; // copy over LEntity elements
-}
-
-
-void Game::SDL_systems_init()
-{
-    // SDL Init
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
-    {
-        throw LException{"Could not initialize SDL2: "
-                         + std::string{SDL_GetError()} + '\n'};
-    }
-
-    // Set linear texture filtering
-    if ( ! SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1") )
-    {
-        std::cerr << "Warning: Linear texture filtering not enabled!\n";
-    }
-
-    // SDL_image Init
-    if ( ! (IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) )
-    {
-        throw LException{"Could not initialize SDL_image for PNG loading! SDL_image Error: "
-                  + std::string{IMG_GetError()} + '\n'};
-    }
-    // SDL_ttf Init
-    if (TTF_Init() < 0)
-    {
-        throw LException{"Could not initialize SDL_ttf for font loading! SDL_ttf Error: "
-                  + std::string{TTF_GetError()} + '\n'};
-    }
-}
-
-
-void Game::SDL_objects_init()
-{
-    window = SDL_CreateWindow( "Hello SDL2!",
-                               SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                               SCREEN_WIDTH, SCREEN_HEIGHT,
-                               SDL_WINDOW_SHOWN);
-    if (window == nullptr)
-    {
-        throw LException{"Could not create SDL2 Window: "
-                         + std::string{SDL_GetError()} + '\n'};
-    }
-
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED
-                                            | SDL_RENDERER_PRESENTVSYNC);
-    if (renderer == nullptr)
-    {
-        throw LException{"Could not create SDL2 Renderer: "
-                         + std::string{SDL_GetError()} + '\n'};
-    }
-    SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-
-    font = TTF_OpenFont("assets/Sol Schori.ttf", FONT_SIZE);
-    if (font == nullptr)
-    {
-        throw LException{"Failed to load font! SDL_ttf Error: "
-                         + std::string{TTF_GetError()} + '\n'};
-    }
-}
-
-
 void Game::game_objects_init()
 {
-    // Game's dynamic resources
-    LTexture::set_fallback_renderer(renderer);
-    LTexture::set_fallback_font(font);
-    /*
-    fps_avg_texture.set_renderer(renderer);
-    fps_avg_texture.set_font(font);
-    fps_cur_texture.set_renderer(renderer);
-    fps_cur_texture.set_font(font);
-
-    load_time_texture.set_renderer(renderer);
-    load_time_texture.set_font(font);
-
-    press_spacebar_texture.set_renderer(renderer);
-    press_spacebar_texture.set_font(font);
-    */
     press_spacebar_texture.load_text("Spacebar: pause/unpause", TEXT_COLOR);
-
-    /*
-    press_a_texture.set_renderer(renderer);
-    press_a_texture.set_font(font);
-    */
     press_a_texture.load_text("A: Add a cell", TEXT_COLOR);
 
     // game objects
@@ -319,8 +207,6 @@ void Game::draw()
 Game::~Game()
 {
     free_game_objects();
-    free_SDL_objects();
-    quit_SDL_systems();
 }
 
 void Game::free_game_objects()
@@ -339,21 +225,5 @@ void Game::free_game_objects()
     entities.clear();
 }
 
-void Game::free_SDL_objects()
-{
-    TTF_CloseFont(font);
-    font = nullptr;
-    SDL_DestroyRenderer(renderer);
-    renderer = nullptr;
-    SDL_DestroyWindow(window);
-    window = nullptr;
-}
-
-void Game::quit_SDL_systems()
-{
-    TTF_Quit();
-    IMG_Quit();
-    SDL_Quit();
-}
 
 } // namespace LCode
