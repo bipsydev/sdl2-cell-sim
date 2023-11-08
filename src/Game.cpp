@@ -215,7 +215,7 @@ void Game::handle_events(SDL_Event & e)
             {
                 const Uint8 * keystate = SDL_GetKeyboardState(nullptr);
                 if (keystate[SDL_SCANCODE_LCTRL] &&
-                    !e.key.repeat || keystate[SDL_SCANCODE_LSHIFT])
+                    (!e.key.repeat || keystate[SDL_SCANCODE_LSHIFT]))
                 {
                     std::cout << "Adding 10 cells...\n";
                     for (Uint8 i = 0; i < 10; ++i)
