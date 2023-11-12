@@ -24,10 +24,10 @@ SDL_FPoint Game::get_random_screen_point()
 }
 
 float Game::get_random_screen_x()
-{ return rand_float<float>(0, get_instance()->get_window_rect().w); }
+{ return rand_float<float>(0, static_cast<float>(get_instance()->get_window_rect().w)); }
 
 float Game::get_random_screen_y()
-{ return rand_float<float>(0, get_instance()->get_window_rect().w); }
+{ return rand_float<float>(0, static_cast<float>(get_instance()->get_window_rect().w)); }
 
 
 

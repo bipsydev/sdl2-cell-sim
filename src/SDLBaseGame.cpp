@@ -142,6 +142,7 @@ SDLBaseGame::~SDLBaseGame()
 {
     free_SDL_objects();
     quit_SDL_systems();
+    current_instance = nullptr;
 }
 
 
@@ -230,6 +231,7 @@ void SDLBaseGame::quit_SDL_systems()
     TTF_Quit();
     IMG_Quit();
     SDL_Quit();
+    systems_initialized = false;
 }
 
 void SDLBaseGame::update_window_rect()

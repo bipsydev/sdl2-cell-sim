@@ -38,13 +38,16 @@ void Cell::update(double delta_ms)
         break;
     }
 
-    if (pos.x > Game::get_instance()->get_window_rect().w)
+    SDL_Rect window_rect = Game::get_instance()->get_window_rect();
+    if (pos.x + radius > static_cast<float>(window_rect.w))
     {
         direction = LEFT;
+        pos.x = static_cast<float>(window_rect.w) - radius;
     }
-    else if (pos.x < 0)
+    else if (pos.x - radius < 0)
     {
         direction = RIGHT;
+        pos.x = radius;
     }
 }
 
