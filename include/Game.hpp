@@ -3,7 +3,6 @@
 #define LCODE_GAME_HPP
 
 #include <SDLBaseGame.hpp>
-#include "LTimer.hpp"
 #include "LTexture.hpp"
 #include "LEntity.hpp"
 
@@ -19,9 +18,6 @@ namespace LCode
 
 class Game : public SDLBaseGame
 {
-    // Timers
-    LTimer fps_timer;
-
     // Textures
     LTexture fps_avg_texture,
              fps_cur_texture,
@@ -30,10 +26,6 @@ class Game : public SDLBaseGame
              press_a_texture;
 
     // Game Variables
-    int frames;
-    bool running;
-    double last_frame_time;
-    double delta;
     bool paused;
     bool space_pressed;
     std::stringstream time_text_avg;
@@ -58,15 +50,13 @@ public:
     Game();
 
     ~Game();
-    
-    int run() override;
 
 private:
     void game_objects_init();
 
-    void handle_events(SDL_Event & e);
-    void update();
-    void draw();
+    void handle_event(SDL_Event & e) override;
+    void update() override;
+    void draw() override;
 
     void free_game_objects();
 };
