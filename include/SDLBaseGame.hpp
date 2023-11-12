@@ -13,6 +13,7 @@ namespace LCode
 class SDLBaseGame
 {
     static bool systems_initialized;
+    static SDLBaseGame * current_instance;
 
 protected:
     // SDL dynamic objects
@@ -41,6 +42,10 @@ public:
     virtual ~SDLBaseGame();
 
     virtual int run();
+
+    static SDLBaseGame * get_instance();
+
+    const SDL_Rect & get_window_rect();
 
 protected:
     virtual void handle_event(SDL_Event & event) = 0;

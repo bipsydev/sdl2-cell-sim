@@ -38,7 +38,7 @@ void Cell::update(double delta_ms)
         break;
     }
 
-    if (pos.x > Game::SCREEN_WIDTH)
+    if (pos.x > Game::get_instance()->get_window_rect().w)
     {
         direction = LEFT;
     }

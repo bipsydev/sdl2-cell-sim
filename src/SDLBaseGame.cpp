@@ -15,6 +15,7 @@ namespace LCode
 {
 
 bool SDLBaseGame::systems_initialized = false;
+SDLBaseGame * SDLBaseGame::current_instance = nullptr;
 
 
 SDLBaseGame::SDLBaseGame(int screen_width, int screen_height, int font_size)
@@ -26,10 +27,18 @@ SDLBaseGame::SDLBaseGame(int screen_width, int screen_height, int font_size)
   frames{0}, running{false}, last_frame_time{0}, delta{0},
   avg_fps{0}, cur_fps{0}
 {
-    load_timer.start();
-    seed_rand();
-    SDL_systems_init();
-    SDL_objects_init(screen_width, screen_height, font_size);
+    if (current_instance == nullptr)
+    {
+        current_instance = this;
+        load_timer.start();
+        seed_rand();
+        SDL_systems_init();
+        SDL_objects_init(screen_width, screen_height, font_size);
+    }
+    else
+    {
+        throw LException{"SDLBaseGame instance already exists!"};
+    }
 }
 
 
@@ -115,6 +124,17 @@ void SDLBaseGame::system_draw_end()
     // this function waits for the monitor refresh rate
     // when the renderer is given the option SDL_RENDERER_PRESENTVSYNC
     SDL_RenderPresent(renderer);
+}
+
+
+SDLBaseGame * SDLBaseGame::get_instance()
+{
+    return current_instance;
+}
+
+const SDL_Rect & SDLBaseGame::get_window_rect()
+{
+    return window_rect;
 }
 
 
