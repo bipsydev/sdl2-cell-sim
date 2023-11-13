@@ -37,6 +37,11 @@ Cell::Cell(float x, float y)
 void Cell::update(double delta_ms)
 {
     float step = speed * static_cast<float>(delta_ms) / 1000.0f;
+    const Uint8 * keystate = SDL_GetKeyboardState(nullptr);
+    if (keystate[SDL_SCANCODE_LSHIFT])
+    {
+        step *= 2;
+    }
     pos.x += velocity.x * step;
     pos.y += velocity.y * step;
 
