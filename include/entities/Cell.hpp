@@ -11,7 +11,7 @@ namespace LCode
 
 class Cell : public LEntity
 {
-    enum Directions { LEFT, RIGHT } direction;
+    SDL_FPoint velocity;
 
     SDL_Color color;
     Sint16 radius;

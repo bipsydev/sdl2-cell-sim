@@ -1,9 +1,13 @@
 #include "entities/Cell.hpp"
 #include "Game.hpp"
 #include "random.hpp"
+#include "sdl_math.hpp"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL2_gfxPrimitives.h>
+
+#define _USE_MATH_DEFINES
+#include <cmath>
 
 namespace LCode
 {
@@ -18,36 +22,45 @@ Cell::Cell(SDL_FPoint new_pos)
 
 Cell::Cell(float x, float y)
 : LEntity(x, y),
-  direction{rand_int(0, 1)? LEFT : RIGHT},
+  velocity{0.0, 0.0},
   color{rand_int<Uint8>(0x00, 0xFF), rand_int<Uint8>(0x00, 0xFF),
         rand_int<Uint8>(0x00, 0xFF), rand_int<Uint8>(0x88, 0xFF)},
   radius{rand_int<Sint16>(16, 128)},
   speed{rand_float(60.0f, 240.0f)}
-{ }
+{
+    auto angle = rand_float(0.0, 2.0 * M_PI);
+    velocity.x = std::cos(angle);
+    velocity.y = std::sin(angle);
+}
 
 void Cell::update(double delta_ms)
 {
     float step = speed * static_cast<float>(delta_ms) / 1000.0f;
-    switch (direction)
-    {
-    case RIGHT:
-        pos.x += step;
-        break;
-    case LEFT:
-        pos.x -= step;
-        break;
-    }
+    pos.x += velocity.x * step;
+    pos.y += velocity.y * step;
 
     SDL_Rect window_rect = Game::get_instance()->get_window_rect();
+    // check X position
     if (pos.x + radius > static_cast<float>(window_rect.w))
     {
-        direction = LEFT;
+        velocity = reflect(velocity, WEST);
         pos.x = static_cast<float>(window_rect.w) - radius;
     }
     else if (pos.x - radius < 0)
     {
-        direction = RIGHT;
+        velocity = reflect(velocity, EAST);
         pos.x = radius;
+    }
+    // check Y position
+    if (pos.y + radius > static_cast<float>(window_rect.h))
+    {
+        velocity = reflect(velocity, NORTH);
+        pos.y = static_cast<float>(window_rect.h) - radius;
+    }
+    else if (pos.y - radius < 0)
+    {
+        velocity = reflect(velocity, SOUTH);
+        pos.y = radius;
     }
 }
 
