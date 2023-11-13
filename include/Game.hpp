@@ -43,10 +43,6 @@ public:
     static inline const SDL_Color TEXT_COLOR{0, 0, 0, 255};
     static inline const int TEXT_PADDING = 6;
 
-    static SDL_FPoint get_random_screen_point();
-    static float get_random_screen_x();
-    static float get_random_screen_y();
-
     Game();
 
     ~Game();

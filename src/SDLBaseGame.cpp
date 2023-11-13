@@ -127,6 +127,9 @@ void SDLBaseGame::system_draw_end()
 }
 
 
+// ---- STATIC functions ----
+
+
 SDLBaseGame * SDLBaseGame::get_instance()
 {
     return current_instance;
@@ -136,6 +139,21 @@ const SDL_Rect & SDLBaseGame::get_window_rect()
 {
     return window_rect;
 }
+
+
+SDL_FPoint SDLBaseGame::get_random_screen_point()
+{
+    return SDL_FPoint{get_random_screen_x(),
+                      get_random_screen_y()};
+}
+
+float SDLBaseGame::get_random_screen_x()
+{ return rand_float<float>(0, static_cast<float>(get_instance()->get_window_rect().w)); }
+
+float SDLBaseGame::get_random_screen_y()
+{ return rand_float<float>(0, static_cast<float>(get_instance()->get_window_rect().h)); }
+
+
 
 
 SDLBaseGame::~SDLBaseGame()

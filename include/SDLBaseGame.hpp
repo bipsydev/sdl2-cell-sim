@@ -47,6 +47,10 @@ public:
 
     const SDL_Rect & get_window_rect();
 
+    static SDL_FPoint get_random_screen_point();
+    static float get_random_screen_x();
+    static float get_random_screen_y();
+
 protected:
     virtual void handle_event(SDL_Event & event) = 0;
     virtual void update() = 0;
