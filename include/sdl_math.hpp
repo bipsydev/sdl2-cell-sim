@@ -7,10 +7,12 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 
+inline const float M_PI_F = static_cast<float>(M_PI);
+
 inline const SDL_FPoint EAST = {std::cos(0.0f), std::sin(0.0f)},
-                        NORTH = {std::cos(M_PI / 2.0f), std::sin(M_PI / 2.0f)},
-                        WEST = {std::cos(M_PI), std::sin(M_PI)},
-                        SOUTH = {std::cos(3.0f * M_PI / 2.0f), std::sin(3.0f * M_PI / 2.0f)};
+                        NORTH = {std::cos(M_PI_F / 2.0f), std::sin(M_PI_F / 2.0f)},
+                        WEST = {std::cos(M_PI_F), std::sin(M_PI_F)},
+                        SOUTH = {std::cos(3.0f * M_PI_F / 2.0f), std::sin(3.0f * M_PI_F / 2.0f)};
 
 inline SDL_FPoint operator * (float a, SDL_FPoint vec)
 {

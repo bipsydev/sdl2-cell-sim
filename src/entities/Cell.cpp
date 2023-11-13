@@ -22,13 +22,13 @@ Cell::Cell(SDL_FPoint new_pos)
 
 Cell::Cell(float x, float y)
 : LEntity(x, y),
-  velocity{0.0, 0.0},
+  velocity{0.0f, 0.0f},
   color{rand_int<Uint8>(0x00, 0xFF), rand_int<Uint8>(0x00, 0xFF),
         rand_int<Uint8>(0x00, 0xFF), rand_int<Uint8>(0x88, 0xFF)},
   radius{rand_int<Sint16>(16, 128)},
   speed{rand_float(60.0f, 240.0f)}
 {
-    auto angle = rand_float(0.0, 2.0 * M_PI);
+    float angle = rand_float(0.0f, 2.0f * M_PI_F);
     velocity.x = std::cos(angle);
     velocity.y = std::sin(angle);
 }

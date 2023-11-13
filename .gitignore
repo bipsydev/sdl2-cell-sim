@@ -33,3 +33,4 @@
 
 # directories for local building/debug
 build/*
+.vscode/settings.json
