@@ -115,13 +115,13 @@ bool LTexture::load(std::string path)
 }
 
 #ifdef SDL_TTF_MAJOR_VERSION
-bool LTexture::load_text(std::string text, SDL_Color color, TTF_Font * font_override)
+bool LTexture::load_text(std::string text, SDL_Color text_color, TTF_Font * font_override)
 {
     // Get rid of preexisting texture
     free();
 
     // render text to a surface
-    SDL_Surface * text_surface = TTF_RenderText_Solid(get_font(font_override), text.c_str(), color);
+    SDL_Surface * text_surface = TTF_RenderText_Solid(get_font(font_override), text.c_str(), text_color);
     if (text_surface == nullptr)
     {
         throw LException{"Unable to render text surface! SDL_TTF Error: "
@@ -169,7 +169,7 @@ void LTexture::set_color(Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha)
 }
 void LTexture::set_color(Uint8 red, Uint8 green, Uint8 blue)
 {
-    set_color(SDL_Color{red, green, blue});
+    set_color(SDL_Color{red, green, blue, color.a});
 }
 void LTexture::set_color(SDL_Color new_color)
 {
@@ -187,17 +187,17 @@ void LTexture::set_blend_mode(GPU_BlendPresetEnum blend_mode)
 }
 
 // Renders texture at specified point, and other optional parameters
-void LTexture::render(int x, int y, GPU_Rect * clip, double angle,
+void LTexture::render(float x, float y, GPU_Rect * clip, float angle,
             SDL_Point * center, GPU_FlipEnum flip)
 {
     return render(gpu, x, y, clip, angle, center, flip);
 }
 
-void LTexture::render(GPU_Target * gpu_override, int x, int y, GPU_Rect * clip, double angle,
+void LTexture::render(GPU_Target * gpu_override, float x, float y, GPU_Rect * clip, float angle,
             SDL_Point * center, GPU_FlipEnum flip)
 {
     // screen space to render texture to
-    GPU_Rect render_rect{x, y, width, height};
+    GPU_Rect render_rect{x, y, static_cast<float>(width), static_cast<float>(height)};
     // alter to clip dimensions
     if (clip != nullptr)
     {
@@ -207,7 +207,9 @@ void LTexture::render(GPU_Target * gpu_override, int x, int y, GPU_Rect * clip, 
 
     // Render to screen!
     //SDL_RenderCopyEx(get_renderer(renderer_override), texture, clip, &render_quad, angle, center, flip);
-    GPU_BlitRectX(image, clip, get_gpu(gpu_override), &render_rect, angle, center != nullptr? center->x : 0, center != nullptr? center->y : 0, flip);
+    GPU_BlitRectX(image, clip, get_gpu(gpu_override), &render_rect, angle,
+                    static_cast<float>(center != nullptr? center->x : 0),
+                    static_cast<float>(center != nullptr? center->y : 0), flip);
 }
 
 int LTexture::get_width()

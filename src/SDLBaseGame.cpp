@@ -33,7 +33,7 @@ SDLBaseGame::SDLBaseGame(int screen_width, int screen_height, int font_size)
         current_instance = this;
         load_timer.start();
         seed_rand();
-        SDL_systems_init(screen_width, screen_height);
+        SDL_systems_init();
         SDL_objects_init(screen_width, screen_height, font_size);
     }
     else
@@ -116,7 +116,7 @@ void SDLBaseGame::system_draw_begin()
 {
     // Clear screen
     GPU_Clear(gpu);
-    GPU_RectangleFilled(gpu, 0, 0, window_rect.w, window_rect.h, SDL_Color{0xFF, 0xFF, 0xFF, 0xFF});
+    GPU_RectangleFilled(gpu, 0, 0, static_cast<float>(window_rect.w), static_cast<float>(window_rect.h), SDL_Color{0xFF, 0xFF, 0xFF, 0xFF});
 }
 
 void SDLBaseGame::system_draw_end()
@@ -166,7 +166,7 @@ SDLBaseGame::~SDLBaseGame()
 }
 
 
-void SDLBaseGame::SDL_systems_init(int screen_width, int screen_height)
+void SDLBaseGame::SDL_systems_init()
 {
     if (!systems_initialized)
     {
@@ -176,31 +176,6 @@ void SDLBaseGame::SDL_systems_init(int screen_width, int screen_height)
             throw LException{"Could not initialize SDL2: "
                             + std::string{SDL_GetError()} + '\n'};
         }
-
-        window = SDL_CreateWindow("Hello SDL2!",
-                                  SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                                  screen_width, screen_height,
-                                  SDL_WINDOW_OPENGL | // Needed to work with SDL_gpu
-                                  SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
-
-        Uint32 window_id = SDL_GetWindowID(window);
-        GPU_SetInitWindow(window_id);
-        gpu = GPU_Init(screen_width, screen_height, GPU_DEFAULT_INIT_FLAGS);
-        if (gpu == nullptr)
-        {
-            GPU_ErrorObject error = GPU_PopErrorCode();
-            std::string details;
-            if (error.details != nullptr)
-            {
-                details = GPU_PopErrorCode().details;
-            }
-            else
-            {
-                details = SDL_GetError();
-            }
-            throw LException{"Could not initialize SDL_gpu: " + details};
-        }
-        update_window_rect();
 
         // Set linear texture filtering
         if ( ! SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1") )
@@ -236,6 +211,31 @@ void SDLBaseGame::SDL_objects_init(int screen_width, int screen_height,
         throw LException{"Failed to load font! SDL_ttf Error: "
                          + std::string{TTF_GetError()} + '\n'};
     }
+
+    window = SDL_CreateWindow("Hello SDL2!",
+                                SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+                                screen_width, screen_height,
+                                SDL_WINDOW_OPENGL | // Needed to work with SDL_gpu
+                                SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+
+    Uint32 window_id = SDL_GetWindowID(window);
+    GPU_SetInitWindow(window_id);
+    gpu = GPU_Init(static_cast<Uint16>(screen_width), static_cast<Uint16>(screen_height), GPU_DEFAULT_INIT_FLAGS);
+    if (gpu == nullptr)
+    {
+        GPU_ErrorObject error = GPU_PopErrorCode();
+        std::string details;
+        if (error.details != nullptr)
+        {
+            details = GPU_PopErrorCode().details;
+        }
+        else
+        {
+            details = SDL_GetError();
+        }
+        throw LException{"Could not initialize SDL_gpu: " + details};
+    }
+    update_window_rect();
 
     LTexture::set_fallback_gpu(gpu);
     LTexture::set_fallback_font(font);

@@ -58,7 +58,7 @@ protected:
     virtual void draw() = 0;
 
 private:
-    void SDL_systems_init(int screen_width = 640, int screen_height = 480);
+    void SDL_systems_init();
     void SDL_objects_init(int screen_width = 640, int screen_height = 480, int font_size = 16);
 
     void system_handle_event(SDL_Event & e);

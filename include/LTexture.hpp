@@ -59,7 +59,7 @@ public:
 
     // loads an image with a font given some text
     #ifdef SDL_TTF_MAJOR_VERSION
-    bool load_text(std::string text, SDL_Color color = SDL_Color{0xFF, 0xFF, 0xFF, 0xFF}, TTF_Font * font_override = nullptr);
+    bool load_text(std::string text, SDL_Color text_color = SDL_Color{0xFF, 0xFF, 0xFF, 0xFF}, TTF_Font * font_override = nullptr);
     #endif
 
     // deallocates texture
@@ -74,10 +74,10 @@ public:
     void set_blend_mode(GPU_BlendPresetEnum blend_mode);
 
     // Renders texture at specified point, and other optional parameters
-    void render(int x, int y, GPU_Rect * clip = nullptr, double angle = 0.0,
+    void render(float x, float y, GPU_Rect * clip = nullptr, float angle = 0.0,
                 SDL_Point * center = nullptr, GPU_FlipEnum flip = GPU_FLIP_NONE);
 
-    void render(GPU_Target * gpu_override, int x, int y, GPU_Rect * clip = nullptr, double angle = 0.0,
+    void render(GPU_Target * gpu_override, float x, float y, GPU_Rect * clip = nullptr, float angle = 0.0,
                 SDL_Point * center = nullptr, GPU_FlipEnum flip = GPU_FLIP_NONE);
 
     int get_width();
