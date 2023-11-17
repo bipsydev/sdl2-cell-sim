@@ -4,7 +4,7 @@
 #include "sdl_math.hpp"
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL2_gfxPrimitives.h>
+#include <SDL2/SDL_gpu.h>
 
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -70,28 +70,26 @@ void Cell::update(double delta_ms)
     }
 }
 
-void Cell::draw(SDL_Renderer * renderer)
+void Cell::draw(GPU_Target * gpu)
 {
     Sint16 x_i = static_cast<Sint16>(std::round(pos.x));
     Sint16 y_i = static_cast<Sint16>(std::round(pos.y));
     if (draw_box)
     {
-        boxRGBA(renderer, x_i - radius, y_i - radius,
-                          x_i + radius, y_i + radius,
-                          // use opposite color
-                          0xFF - color.r, 0xFF - color.g,
-                          0xFF - color.b, color.a / 4);
+        GPU_RectangleFilled(gpu, x_i - radius, y_i - radius,
+                                 x_i + radius, y_i + radius,
+                            SDL_Color{
+                                // use opposite color
+                                static_cast<Uint8>(0xFF - color.r),
+                                static_cast<Uint8>(0xFF - color.g),
+                                static_cast<Uint8>(0xFF - color.b),
+                                static_cast<Uint8>(color.a / 4)});
     }
-    filledCircleRGBA(renderer,
-                     x_i, y_i,
-                     radius,
-                     color.r, color.g, color.b, color.a);
+    GPU_CircleFilled(gpu, x_i, y_i, radius, color);
     for (Uint8 ring = 0; ring < width; ++ring)
     {
-        circleRGBA(renderer,
-                   x_i, y_i,
-                   radius - ring,
-                   0x00, 0x00, 0x00, 0xFF);
+        static const SDL_Color BLACK{0x00, 0x00, 0x00, 0xFF};
+        GPU_Circle(gpu, x_i, y_i, radius - ring, BLACK);
     }
 }
 

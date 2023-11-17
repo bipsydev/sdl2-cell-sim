@@ -33,7 +33,7 @@
                 "-l", "SDL2",
                 "-l", "SDL2_image",
                 "-l", "SDL2_ttf",
-                "-l", "SDL2_gfx",
+                "-l", "SDL2_gpu",
                 // Include directories
                 "-I", "./include",
                 "-g",

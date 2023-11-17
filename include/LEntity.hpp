@@ -3,6 +3,7 @@
 #define LCODE_LENTITY_HPP
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_gpu.h>
 
 namespace LCode
 {
@@ -20,7 +21,7 @@ public:
 
     virtual ~LEntity() = default;
     virtual void update(double delta_ms) = 0;
-    virtual void draw(SDL_Renderer * renderer) = 0;
+    virtual void draw(GPU_Target * gpu) = 0;
 
 };
 

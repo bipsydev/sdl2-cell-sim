@@ -1,7 +1,9 @@
 #include "LTexture.hpp"
 #include "LException.hpp"
 
-#include <SDL2/SDL_image.h>
+
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_gpu.h>
 
 #include <string>
 #include <iostream>
@@ -9,7 +11,7 @@
 namespace LCode
 {
 // ---- Static initializers ----
-SDL_Renderer * LTexture::fallback_renderer = nullptr;
+GPU_Target * LTexture::fallback_gpu = nullptr;
 #ifdef SDL_TTF_MAJOR_VERSION
 TTF_Font * LTexture::fallback_font = nullptr;
 #endif
@@ -20,23 +22,26 @@ LTexture::LTexture()
 : LTexture(nullptr)
 { }
 
-LTexture::LTexture(SDL_Renderer * renderer_ref)
-: LTexture(renderer_ref, nullptr)
+LTexture::LTexture(GPU_Target * gpu_ref)
+: LTexture(gpu_ref, nullptr)
 { }
 
-LTexture::LTexture(SDL_Renderer * renderer_ref, TTF_Font * font_ref)
-: texture{nullptr},
+LTexture::LTexture(GPU_Target * gpu_ref, TTF_Font * font_ref)
+: image{nullptr},
+  color{0xFF, 0xFF, 0xFF, 0xFF},
   width{0}, height{0},
   file_path{""},
-  renderer{renderer_ref},
+  gpu{gpu_ref},
   font{font_ref}
-{ }
+{
+    set_color(color);
+}
 
 
 LTexture::LTexture(const LTexture & other)
 : LTexture()
 {
-    if (other.texture != nullptr)
+    if (other.image != nullptr)
     {
         copy(other);
     }
@@ -44,7 +49,7 @@ LTexture::LTexture(const LTexture & other)
 
 LTexture & LTexture::operator = (const LTexture & other)
 {
-    if (this != &other && other.texture != nullptr)
+    if (this != &other && other.image != nullptr)
     {
         copy(other);
     }
@@ -55,7 +60,7 @@ void LTexture::copy(const LTexture & other)
 {
     free();
     load(other.file_path); // sets width, height, file_path as well as load texture
-    renderer = other.renderer;
+    gpu = other.gpu;
     font = other.font;
 }
 
@@ -65,14 +70,14 @@ LTexture::~LTexture()
 }
 
 
-void LTexture::set_renderer(SDL_Renderer * renderer_ref)
+void LTexture::set_gpu(GPU_Target * gpu_ref)
 {
-    renderer = renderer_ref;
+    gpu = gpu_ref;
 }
 
-void LTexture::set_fallback_renderer(SDL_Renderer * renderer_ref)
+void LTexture::set_fallback_gpu(GPU_Target * gpu_ref)
 {
-    fallback_renderer = renderer_ref;
+    fallback_gpu = gpu_ref;
 }
 
 
@@ -93,40 +98,20 @@ bool LTexture::load(std::string path)
     // get rid of preexisting texture
     free();
 
-    // final texture
-    SDL_Texture * new_texture = nullptr;
-
-    SDL_Surface * loaded_surface = IMG_Load(path.c_str());
-    if (loaded_surface == nullptr)
+    image = GPU_LoadImage(path.c_str());
+    if (image == nullptr)
     {
         throw LException{"Unable to load image file into surface at \"" + path
-                + "\"! SDL_image Error: " + std::string{IMG_GetError()} + '\n'};
+                + "\"! SDL Error: " + std::string{SDL_GetError()} + '\n'};
     }
     else
     {
-        // Color key image
-        SDL_SetColorKey(loaded_surface, SDL_TRUE,
-                        SDL_MapRGB(loaded_surface->format, 0x00, 0xFF, 0xFF));
-        
-        // Create texture from surface pixels
-        new_texture = SDL_CreateTextureFromSurface(get_renderer(), loaded_surface);
-        if (new_texture == nullptr)
-        {
-            throw LException{"Unable to create texture from loaded surface from file \""
-                + path + "\"! SDL Error: " + std::string{SDL_GetError()} + '\n'};
-        }
-        else
-        {
-            width = loaded_surface->w;
-            height = loaded_surface->h;
-            file_path = path;
-        }
-
-        SDL_FreeSurface(loaded_surface);
+        width = image->w;
+        height = image->h;
+        file_path = path;
     }
 
-    texture = new_texture;
-    return texture != nullptr;
+    return image != nullptr;
 }
 
 #ifdef SDL_TTF_MAJOR_VERSION
@@ -145,8 +130,8 @@ bool LTexture::load_text(std::string text, SDL_Color color, TTF_Font * font_over
     else
     {
         // create texture from surface pixels
-        texture = SDL_CreateTextureFromSurface(get_renderer(), text_surface);
-        if (texture == nullptr)
+        image = GPU_CopyImageFromSurface(text_surface);
+        if (image == nullptr)
         {
             throw LException{"Unable to create texture from rendered text surface! SDL Error: "
                              + std::string{SDL_GetError()} + '\n'};
@@ -161,17 +146,17 @@ bool LTexture::load_text(std::string text, SDL_Color color, TTF_Font * font_over
         SDL_FreeSurface(text_surface);
     }
 
-    return texture != nullptr;
+    return image != nullptr;
 
 }
 #endif
 
 void LTexture::free()
 {
-    if (texture != nullptr)
+    if (image != nullptr)
     {
-        SDL_DestroyTexture(texture);
-        texture = nullptr;
+        GPU_FreeImage(image);
+        image = nullptr;
         width = 0;
         height = 0;
     }
@@ -184,43 +169,45 @@ void LTexture::set_color(Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha)
 }
 void LTexture::set_color(Uint8 red, Uint8 green, Uint8 blue)
 {
-    SDL_SetTextureColorMod(texture, red, green, blue);
+    set_color(SDL_Color{red, green, blue});
 }
-void LTexture::set_color(SDL_Color color)
+void LTexture::set_color(SDL_Color new_color)
 {
-    set_color(color.r, color.g, color.b, color.a);
+    GPU_SetColor(image, new_color);
+    color = new_color;
 }
 void LTexture::set_alpha(Uint8 alpha)
 {
-    SDL_SetTextureAlphaMod(texture, alpha);
+    set_color(color.r, color.g, color.b, alpha);
 }
 
-void LTexture::set_blend_mode(SDL_BlendMode blending)
+void LTexture::set_blend_mode(GPU_BlendPresetEnum blend_mode)
 {
-    SDL_SetTextureBlendMode(texture, blending);
+    GPU_SetBlendMode(image, blend_mode);
 }
 
 // Renders texture at specified point, and other optional parameters
-void LTexture::render(int x, int y, SDL_Rect * clip, double angle,
-            SDL_Point * center, SDL_RendererFlip flip)
+void LTexture::render(int x, int y, GPU_Rect * clip, double angle,
+            SDL_Point * center, GPU_FlipEnum flip)
 {
-    return render(renderer, x, y, clip, angle, center, flip);
+    return render(gpu, x, y, clip, angle, center, flip);
 }
 
-void LTexture::render(SDL_Renderer * renderer_override, int x, int y, SDL_Rect * clip, double angle,
-            SDL_Point * center, SDL_RendererFlip flip)
+void LTexture::render(GPU_Target * gpu_override, int x, int y, GPU_Rect * clip, double angle,
+            SDL_Point * center, GPU_FlipEnum flip)
 {
     // screen space to render texture to
-    SDL_Rect render_quad{x, y, width, height};
+    GPU_Rect render_rect{x, y, width, height};
     // alter to clip dimensions
     if (clip != nullptr)
     {
-        render_quad.w = clip->w;
-        render_quad.h = clip->h;
+        render_rect.w = clip->w;
+        render_rect.h = clip->h;
     }
 
     // Render to screen!
-    SDL_RenderCopyEx(get_renderer(renderer_override), texture, clip, &render_quad, angle, center, flip);
+    //SDL_RenderCopyEx(get_renderer(renderer_override), texture, clip, &render_quad, angle, center, flip);
+    GPU_BlitRectX(image, clip, get_gpu(gpu_override), &render_rect, angle, center != nullptr? center->x : 0, center != nullptr? center->y : 0, flip);
 }
 
 int LTexture::get_width()
@@ -235,23 +222,23 @@ int LTexture::get_height()
 
 // ---- PRIVATE METHODS ----
 
-SDL_Renderer * LTexture::get_renderer(SDL_Renderer * renderer_override)
+GPU_Target * LTexture::get_gpu(GPU_Target * gpu_override)
 {
-    if (renderer_override != nullptr)
+    if (gpu_override != nullptr)
     {
-        return renderer_override;
+        return gpu_override;
     }
-    else if (renderer != nullptr)
+    else if (gpu != nullptr)
     {
-        return renderer;
+        return gpu;
     }
-    else if (fallback_renderer != nullptr)
+    else if (fallback_gpu != nullptr)
     {
-        return fallback_renderer;
+        return fallback_gpu;
     }
     else
     {
-        throw LException{"Operation failed: No SDL_Renderer* to retrieve!"};
+        throw LException{"Operation failed: No GPU_Target* to retrieve!"};
     }
 }
 

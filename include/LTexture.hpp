@@ -3,6 +3,7 @@
 #define LCODE_LTEXTURE_HPP
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_gpu.h>
 #include <SDL2/SDL_ttf.h>
 #include <string>
 
@@ -12,14 +13,16 @@ namespace LCode
 class LTexture
 {
     // The texture
-    SDL_Texture * texture;
+    //SDL_Texture * texture;
+    GPU_Image * image;
+    SDL_Color color;
     int width, height;
     std::string file_path;
 
     // the renderer used to create & render the textures
-    SDL_Renderer * renderer;
+    GPU_Target * gpu;
     // static fallback is used if renderer is nullptr on instance
-    static SDL_Renderer * fallback_renderer;
+    static GPU_Target * fallback_gpu;
 
     #ifdef SDL_TTF_MAJOR_VERSION
     // the font used for text rendering
@@ -30,8 +33,8 @@ class LTexture
 public:
     // initialize
     LTexture();
-    LTexture(SDL_Renderer * renderer_ref);
-    LTexture(SDL_Renderer * renderer_ref, TTF_Font * font_ref);
+    LTexture(GPU_Target * gpu_ref);
+    LTexture(GPU_Target * gpu_ref, TTF_Font * font_ref);
 
     // for memory safety
     LTexture(const LTexture & other);
@@ -43,8 +46,8 @@ public:
 
 
     // sets the renderer used by all LTextures during loading (should be the window renderer)
-    void set_renderer(SDL_Renderer * renderer_ref);
-    static void set_fallback_renderer(SDL_Renderer * renderer_ref);
+    void set_gpu(GPU_Target * renderer_ref);
+    static void set_fallback_gpu(GPU_Target * renderer_ref);
 
     #ifdef SDL_TTF_MAJOR_VERSION
     void set_font(TTF_Font * font_ref);
@@ -68,21 +71,21 @@ public:
     void set_color(SDL_Color color);
     void set_alpha(Uint8 alpha);
 
-    void set_blend_mode(SDL_BlendMode blending);
+    void set_blend_mode(GPU_BlendPresetEnum blend_mode);
 
     // Renders texture at specified point, and other optional parameters
-    void render(int x, int y, SDL_Rect * clip = nullptr, double angle = 0.0,
-                SDL_Point * center = nullptr, SDL_RendererFlip flip = SDL_FLIP_NONE);
+    void render(int x, int y, GPU_Rect * clip = nullptr, double angle = 0.0,
+                SDL_Point * center = nullptr, GPU_FlipEnum flip = GPU_FLIP_NONE);
 
-    void render(SDL_Renderer * renderer_override, int x, int y, SDL_Rect * clip = nullptr, double angle = 0.0,
-                SDL_Point * center = nullptr, SDL_RendererFlip flip = SDL_FLIP_NONE);
+    void render(GPU_Target * gpu_override, int x, int y, GPU_Rect * clip = nullptr, double angle = 0.0,
+                SDL_Point * center = nullptr, GPU_FlipEnum flip = GPU_FLIP_NONE);
 
     int get_width();
     int get_height();
 
 private:
 
-    SDL_Renderer * get_renderer(SDL_Renderer * renderer_override = nullptr);
+    GPU_Target * get_gpu(GPU_Target * gpu_override = nullptr);
 
     #ifdef SDL_TTF_MAJOR_VERSION
     TTF_Font * get_font(TTF_Font * font_override = nullptr);

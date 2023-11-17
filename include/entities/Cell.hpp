@@ -5,6 +5,7 @@
 #include "LEntity.hpp"
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_gpu.h>
 
 namespace LCode
 {
@@ -26,7 +27,7 @@ public:
     Cell(float x, float y);
 
     void update(double delta_ms) override;
-    void draw(SDL_Renderer * renderer) override;
+    void draw(GPU_Target * gpu) override;
 };
 
 } // namespace LCode

@@ -121,7 +121,7 @@ void Game::draw()
     // draw all entities
     for (LEntity * entity : entities)
     {
-        entity->draw(renderer);
+        entity->draw(gpu);
     }
 
     // Draw text textures
@@ -158,6 +158,5 @@ void Game::free_game_objects()
     }
     entities.clear();
 }
-
 
 } // namespace LCode

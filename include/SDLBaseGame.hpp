@@ -5,6 +5,7 @@
 #include "LTimer.hpp"
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_gpu.h>
 #include <SDL2/SDL_ttf.h>
 
 namespace LCode
@@ -18,7 +19,7 @@ class SDLBaseGame
 protected:
     // SDL dynamic objects
     SDL_Window * window;
-    SDL_Renderer * renderer;
+    GPU_Target * gpu;
     TTF_Font * font;
 
     LTimer load_timer,
@@ -57,7 +58,7 @@ protected:
     virtual void draw() = 0;
 
 private:
-    void SDL_systems_init();
+    void SDL_systems_init(int screen_width = 640, int screen_height = 480);
     void SDL_objects_init(int screen_width = 640, int screen_height = 480, int font_size = 16);
 
     void system_handle_event(SDL_Event & e);
