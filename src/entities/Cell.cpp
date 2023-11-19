@@ -28,7 +28,8 @@ Cell::Cell(float x, float y)
   draw_box{false}, width{8},
   radius{rand_int<Sint16>(16, 128)},
   speed{rand_float(60.0f, 240.0f)},
-  life{10.0}, life_total{life}
+  life{rand_float(5.0, 20.0)}, life_total{life},
+  text_label{}
 {
     float angle = rand_float(0.0f, 2.0f * M_PI_F);
     velocity.x = std::cos(angle);
@@ -47,6 +48,7 @@ void Cell::update(double delta_ms)
     if (life <= 0.0)
     {
         delete_self();
+        return;
     }
 
     float step = speed * static_cast<float>(delta_sec);
@@ -103,6 +105,9 @@ void Cell::draw(GPU_Target * gpu)
     {
         GPU_Circle(gpu, x_i, y_i, radius - ring, BLACK);
     }
+
+    text_label.load_text("Life: " + std::to_string(life) + " / " + std::to_string(life_total));
+    text_label.render(pos.x, pos.y);
 }
 
 } // namespace LCode

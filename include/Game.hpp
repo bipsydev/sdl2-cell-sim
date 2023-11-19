@@ -43,16 +43,12 @@ public:
 
     Game();
 
-    ~Game() override;
-
 private:
     void game_objects_init();
 
     void handle_event(SDL_Event & e) override;
     void update() override;
     void draw() override;
-
-    void free_game_objects();
 };
 
 } // namespace LCode

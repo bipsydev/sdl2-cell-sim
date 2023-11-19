@@ -59,7 +59,7 @@ public:
 
     // loads an image with a font given some text
     #ifdef SDL_TTF_MAJOR_VERSION
-    bool load_text(std::string text, SDL_Color text_color = SDL_Color{0xFF, 0xFF, 0xFF, 0xFF}, TTF_Font * font_override = nullptr);
+    bool load_text(std::string text, SDL_Color text_color = SDL_Color{0x00, 0x00, 0x00, 0xFF}, TTF_Font * font_override = nullptr);
     #endif
 
     // deallocates texture

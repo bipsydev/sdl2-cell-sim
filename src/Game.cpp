@@ -131,18 +131,4 @@ void Game::draw()
     
 }
 
-Game::~Game()
-{
-    free_game_objects();
-}
-
-void Game::free_game_objects()
-{
-    // free game textures
-    fps_avg_texture.free();
-    fps_cur_texture.free();
-    load_time_texture.free();
-    press_spacebar_texture.free();
-}
-
 } // namespace LCode

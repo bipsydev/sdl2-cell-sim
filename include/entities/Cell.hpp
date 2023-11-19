@@ -3,6 +3,7 @@
 #define LCODE_CELL_HPP
 
 #include "LEntity.hpp"
+#include "LTexture.hpp"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_gpu.h>
@@ -25,6 +26,7 @@ class Cell : public LEntity
     double life,
            life_total;
 
+    LTexture text_label;
 
 public:
     Cell();
