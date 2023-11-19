@@ -11,6 +11,8 @@
 #include <SDL2/SDL_image.h>
 
 #include <iostream>
+#include <vector>
+#include <cstddef>
 
 namespace LCode
 {
@@ -26,7 +28,8 @@ SDLBaseGame::SDLBaseGame(int screen_width, int screen_height, int font_size)
   load_timer{}, fps_timer{},
   window_rect{},
   frames{0}, running{false}, last_frame_time{0}, delta{0},
-  avg_fps{0}, cur_fps{0}
+  avg_fps{0}, cur_fps{0},
+  entities{}
 {
     if (current_instance == nullptr)
     {
@@ -162,9 +165,63 @@ SDLBaseGame::~SDLBaseGame()
 {
     free_SDL_objects();
     quit_SDL_systems();
+
+    // free game entities
+    for (size_t i = 0; i < entities.size(); ++i)
+    {
+        delete entities[i];
+    }
+    entities.clear();
+
     current_instance = nullptr;
 }
 
+
+LEntity * SDLBaseGame::add_entity(LEntity * new_entity)
+{
+    entities.push_back(new_entity);
+    return new_entity;
+}
+
+LEntity * SDLBaseGame::delete_entity(LEntity * entity_to_remove)
+{
+    for (size_t i = 0; i < entities.size(); ++i)
+    {
+        if (entities[i] == entity_to_remove)
+        {
+            delete_entity(i);
+            --i;
+        }
+    }
+    return entity_to_remove;
+}
+
+LEntity * SDLBaseGame::delete_entity(size_t index)
+{
+
+    LEntity * ret = entities.at(index);
+    delete entities.at(index);
+    entities.erase(entities.begin() + index);
+    return ret;
+}
+
+void SDLBaseGame::update_entities()
+{
+    // use explicit size check in case multiple entities were deleted at once
+    for (size_t i = 0; i < entities.size(); ++i)
+    {
+        entities.at(i)->update(delta);
+    }
+}
+
+void SDLBaseGame::draw_entities()
+{
+    // draw all entities (size of entities should stay constant here)
+    for (LEntity * entity : entities)
+    {
+        entity->draw(gpu);
+    }
+}
 
 void SDLBaseGame::SDL_systems_init()
 {

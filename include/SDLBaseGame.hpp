@@ -3,10 +3,14 @@
 #define LCODE_SDLBASEGAME_HPP
 
 #include "LTimer.hpp"
+#include "LEntity.hpp"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_gpu.h>
 #include <SDL2/SDL_ttf.h>
+
+#include <vector>
+#include <cstddef>
 
 namespace LCode
 {
@@ -33,6 +37,10 @@ protected:
     double avg_fps,
            cur_fps;
 
+private:
+    // list of active game entities
+    std::vector<LEntity *> entities;
+
 public:
     SDLBaseGame(int screen_width = 640, int screen_height = 480, int font_size = 16);
 
@@ -52,10 +60,18 @@ public:
     static float get_random_screen_x();
     static float get_random_screen_y();
 
+    // Ownership of pointer is transferred to SDLBaseGame
+    LEntity * add_entity(LEntity * new_entity);
+    LEntity * delete_entity(LEntity * entity_to_remove);
+    LEntity * delete_entity(size_t index);
+
 protected:
     virtual void handle_event(SDL_Event & event) = 0;
     virtual void update() = 0;
     virtual void draw() = 0;
+
+    void update_entities();
+    void draw_entities();
 
 private:
     void SDL_systems_init();

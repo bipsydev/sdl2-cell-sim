@@ -22,8 +22,7 @@ Game::Game()
   press_spacebar_texture{}, press_a_texture{},
   paused{true},
   space_pressed{false},
-  time_text_avg{}, time_text_cur{},
-  entities{}
+  time_text_avg{}, time_text_cur{}
 {
     game_objects_init();
 
@@ -40,8 +39,8 @@ void Game::game_objects_init()
     press_spacebar_texture.load_text("Spacebar: pause/unpause", TEXT_COLOR);
     press_a_texture.load_text("A: Add a cell", TEXT_COLOR);
 
-    // game objects
-    entities.push_back(new Cell{SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f});
+    // add game entities to SDLBaseGame entity handler
+    add_entity(new Cell{SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f});
 }
 
 void Game::handle_event(SDL_Event & e)
@@ -70,13 +69,13 @@ void Game::handle_event(SDL_Event & e)
                 std::cout << "Adding 10 cells...\n";
                 for (Uint8 i = 0; i < 10; ++i)
                 {
-                    entities.push_back(new Cell);
+                    add_entity(new Cell);
                 }
             }
             else if (!e.key.repeat || keystate[SDL_SCANCODE_LSHIFT])
             {
                 std::cout << "Adding a cell...\n";
-                entities.push_back(new Cell);
+                add_entity(new Cell);
             }
             break;
         }
@@ -95,13 +94,10 @@ void Game::update()
     time_text_cur.str("");
     time_text_cur << "Current FPS: " << cur_fps;
 
-    // update game objects
+    // update game entities only if unpaused
     if (!paused)
     {
-        for (LEntity * entity : entities)
-        {
-            entity->update(delta);
-        }
+        update_entities();
     }
 }
 
@@ -118,11 +114,8 @@ void Game::draw()
         std::cerr << "Unable to render FPS Texture!\n";
     }
 
-    // draw all entities
-    for (LEntity * entity : entities)
-    {
-        entity->draw(gpu);
-    }
+    // draw all game entities
+    draw_entities();
 
     // Draw text textures
     load_time_texture.render(TEXT_PADDING, TEXT_PADDING);
@@ -150,13 +143,6 @@ void Game::free_game_objects()
     fps_cur_texture.free();
     load_time_texture.free();
     press_spacebar_texture.free();
-
-    // free game objects
-    for (size_t i = 0; i < entities.size(); ++i)
-    {
-        delete entities[i];
-    }
-    entities.clear();
 }
 
 } // namespace LCode

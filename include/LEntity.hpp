@@ -23,6 +23,9 @@ public:
     virtual void update(double delta_ms) = 0;
     virtual void draw(GPU_Target * gpu) = 0;
 
+protected:
+    void delete_self();
+
 };
 
 } // namespace LCode

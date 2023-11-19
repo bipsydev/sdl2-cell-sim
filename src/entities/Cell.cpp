@@ -40,10 +40,13 @@ void Cell::update(double delta_ms)
     double delta_sec = delta_ms / 1000.0;
 
     life -= delta_sec;
+    if (life <= 1.0 /*TODO: && color != BLACK*/)
+    {
+        color = BLACK;
+    }
     if (life <= 0.0)
     {
-        //TODO: free from game entity vector
-        color = SDL_Color{0x00, 0x00, 0x00, 0xFF};
+        delete_self();
     }
 
     float step = speed * static_cast<float>(delta_sec);

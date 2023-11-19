@@ -30,8 +30,6 @@ class Game : public SDLBaseGame
     bool space_pressed;
     std::stringstream time_text_avg;
     std::stringstream time_text_cur;
-    // list of active game entities
-    std::vector<LEntity *> entities;
 
 public:
     // inline initialization of static variables
@@ -45,7 +43,7 @@ public:
 
     Game();
 
-    ~Game();
+    ~Game() override;
 
 private:
     void game_objects_init();
