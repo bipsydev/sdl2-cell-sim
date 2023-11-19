@@ -20,6 +20,9 @@ class Cell : public LEntity
     Sint16 radius;
     float speed;
 
+    double life,
+           life_total;
+
 
 public:
     Cell();

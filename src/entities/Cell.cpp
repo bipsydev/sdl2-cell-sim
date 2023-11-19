@@ -27,7 +27,8 @@ Cell::Cell(float x, float y)
         rand_int<Uint8>(0x00, 0xFF), rand_int<Uint8>(0x88, 0xFF)},
   draw_box{false}, width{8},
   radius{rand_int<Sint16>(16, 128)},
-  speed{rand_float(60.0f, 240.0f)}
+  speed{rand_float(60.0f, 240.0f)},
+  life{10.0}, life_total{life}
 {
     float angle = rand_float(0.0f, 2.0f * M_PI_F);
     velocity.x = std::cos(angle);
@@ -36,7 +37,16 @@ Cell::Cell(float x, float y)
 
 void Cell::update(double delta_ms)
 {
-    float step = speed * static_cast<float>(delta_ms) / 1000.0f;
+    double delta_sec = delta_ms / 1000.0;
+
+    life -= delta_sec;
+    if (life <= 0.0)
+    {
+        //TODO: free from game entity vector
+        color = SDL_Color{0x00, 0x00, 0x00, 0xFF};
+    }
+
+    float step = speed * static_cast<float>(delta_sec);
     const Uint8 * keystate = SDL_GetKeyboardState(nullptr);
     if (keystate[SDL_SCANCODE_LSHIFT])
     {
