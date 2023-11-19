@@ -101,7 +101,6 @@ void Cell::draw(GPU_Target * gpu)
     GPU_CircleFilled(gpu, x_i, y_i, radius, color);
     for (Uint8 ring = 0; ring < width; ++ring)
     {
-        static const SDL_Color BLACK{0x00, 0x00, 0x00, 0xFF};
         GPU_Circle(gpu, x_i, y_i, radius - ring, BLACK);
     }
 }

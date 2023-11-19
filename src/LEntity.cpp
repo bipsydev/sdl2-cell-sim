@@ -6,8 +6,8 @@ namespace LCode
 {
 
 LEntity::LEntity()
-: pos{SDLBaseGame::get_instance()->get_window_rect().w / 2,
-      SDLBaseGame::get_instance()->get_window_rect().h / 2}
+: pos{static_cast<float>(SDLBaseGame::get_instance()->get_window_rect().w) / 2.0f,
+      static_cast<float>(SDLBaseGame::get_instance()->get_window_rect().h) / 2.0f}
 { }
 
 LEntity::LEntity(SDL_FPoint new_pos)
