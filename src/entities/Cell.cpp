@@ -25,9 +25,9 @@ Cell::Cell(float x, float y)
   velocity{0.0f, 0.0f},
   color{rand_int<Uint8>(0x00, 0xFF), rand_int<Uint8>(0x00, 0xFF),
         rand_int<Uint8>(0x00, 0xFF), rand_int<Uint8>(0x88, 0xFF)},
-  draw_box{false}, width{8},
   radius{rand_int<Sint16>(16, 128)},
-  speed{rand_float(60.0f, 240.0f)},
+  width{static_cast<Uint8>(sqrt(radius))},
+  speed{rand_float(60.0f, 240.0f)}, draw_box{false},
   life{rand_float(5.0, 20.0)}, life_total{life},
   text_label{}
 {
@@ -87,12 +87,11 @@ void Cell::update(double delta_ms)
 
 void Cell::draw(GPU_Target * gpu)
 {
-    Sint16 x_i = static_cast<Sint16>(std::round(pos.x));
-    Sint16 y_i = static_cast<Sint16>(std::round(pos.y));
+    // draw a box!
     if (draw_box)
     {
-        GPU_RectangleFilled(gpu, x_i - radius, y_i - radius,
-                                 x_i + radius, y_i + radius,
+        GPU_RectangleFilled(gpu, pos.x - radius, pos.y - radius,
+                                 pos.x + radius, pos.y + radius,
                             SDL_Color{
                                 // use opposite color
                                 static_cast<Uint8>(0xFF - color.r),
@@ -100,12 +99,15 @@ void Cell::draw(GPU_Target * gpu)
                                 static_cast<Uint8>(0xFF - color.b),
                                 static_cast<Uint8>(color.a / 4)});
     }
-    GPU_CircleFilled(gpu, x_i, y_i, radius, color);
-    for (Uint8 ring = 0; ring < width; ++ring)
+    // draw a circle!
+    GPU_CircleFilled(gpu, pos.x, pos.y, radius, color);
+    // draw the black outline, `width` pixels wide
+    for (float ring = 0; ring < static_cast<float>(width); ring += 0.5f)
     {
-        GPU_Circle(gpu, x_i, y_i, radius - ring, BLACK);
+        GPU_Circle(gpu, pos.x, pos.y, radius - ring, BLACK);
     }
 
+    // load and render the text label!
     text_label.load_text("Life: " + std::to_string(life) + " / " + std::to_string(life_total));
     text_label.render(pos.x, pos.y);
 }

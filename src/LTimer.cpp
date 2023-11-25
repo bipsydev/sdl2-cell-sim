@@ -72,7 +72,8 @@ Uint64 LTimer::get_ticks()
 double LTimer::get_seconds()
 {
     // divide by how many ticks in a second (SDL_GetPerformanceFrequency)
-    return static_cast<double>(get_ticks()) / static_cast<double>(SDL_GetPerformanceFrequency());
+    return static_cast<double>(get_ticks())
+           / static_cast<double>(SDL_GetPerformanceFrequency());
 }
 
 double LTimer::get_milliseconds()

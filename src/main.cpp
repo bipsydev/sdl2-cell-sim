@@ -5,6 +5,6 @@
 int main()
 {
     std::cout << "Hello!\n";
-    LCode::Game game;
-    return game.run();
+    LCode::Game game;   // initialize window
+    return game.run();  // run loop
 }

@@ -17,19 +17,13 @@
 namespace LCode
 {
 
-bool SDLBaseGame::systems_initialized = false;
-SDLBaseGame * SDLBaseGame::current_instance = nullptr;
-
-
 SDLBaseGame::SDLBaseGame(int screen_width, int screen_height, int font_size)
-: window{nullptr},
-  gpu{nullptr},
-  font{nullptr},
+: entities{},
+  window{nullptr}, gpu{nullptr}, font{nullptr},
   load_timer{}, fps_timer{},
   window_rect{},
   frames{0}, running{false}, last_frame_time{0}, delta{0},
-  avg_fps{0}, cur_fps{0},
-  entities{}
+  avg_fps{0}, cur_fps{0}
 {
     if (current_instance == nullptr)
     {
@@ -54,29 +48,43 @@ int SDLBaseGame::run()
     last_frame_time = 0; // (ms) var to save previous frame time to calculate delta
     delta = 0;           // the milliseconds since the last frame
     fps_timer.start();   // start the FPS timer
-    // ---- MAIN LOOP ----
+    // -------- MAIN LOOP --------
     while (running)
     {
-        while(SDL_PollEvent(&e) != 0
-            && running)
+        // ---- EVENTS ----
+        while (SDL_PollEvent(&e) != 0
+               && running)
         {
-            system_handle_event(e);
+            system_handle_event(e); // handles SDL_QUIT and SDL_WINDOWEVENT
+            if (!running) break;
             handle_event(e);
         }
-        if (running)
-        {
-            system_update();
-        }
-        if (running)
-        {
-            update();
-        }
+        // ---- UPDATE LOGIC ----
+        if (!running) break;
+        system_update();
+        update();
+        // ---- SCREEN DRAWING ----
+        if (!running) break;
         system_draw_begin();
         draw();
         system_draw_end();
+        // start a new frame
         ++frames;
     }
     return EXIT_SUCCESS;
+}
+
+
+void SDLBaseGame::exit()
+{
+    if (running)
+    {
+        running = false;
+    }
+    else
+    {
+        throw LException{"Game instance already flagged to stop running!"};
+    }
 }
 
 
@@ -84,7 +92,7 @@ void SDLBaseGame::system_handle_event(SDL_Event & e)
 {
     if (e.type == SDL_QUIT)
     {
-        running = false;
+        return exit();
     }
     if (e.type == SDL_WINDOWEVENT)
     {
@@ -158,10 +166,19 @@ float SDLBaseGame::get_random_screen_x()
 float SDLBaseGame::get_random_screen_y()
 { return rand_float<float>(0, static_cast<float>(get_instance()->get_window_rect().h)); }
 
+void SDLBaseGame::exit_game()
+{
+    current_instance->exit();
+}
 
 
 
 SDLBaseGame::~SDLBaseGame()
+{
+    free();
+}
+
+void SDLBaseGame::free()
 {
     free_SDL_objects();
     quit_SDL_systems();
@@ -311,11 +328,18 @@ void SDLBaseGame::free_SDL_objects()
 
 void SDLBaseGame::quit_SDL_systems()
 {
-    TTF_Quit();
-    IMG_Quit();
-    GPU_Quit();
-    SDL_Quit();
-    systems_initialized = false;
+    if (systems_initialized)
+    {
+        TTF_Quit();
+        IMG_Quit();
+        GPU_Quit();
+        SDL_Quit();
+        systems_initialized = false;
+    }
+    else
+    {
+        throw LException{"SDL Systems are not initialized, cannot quit them!"};
+    }
 }
 
 void SDLBaseGame::update_window_rect()

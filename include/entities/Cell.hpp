@@ -18,10 +18,10 @@ class Cell : public LEntity
     SDL_FPoint velocity;
 
     SDL_Color color;
-    bool draw_box;
-    Uint8 width;
     Sint16 radius;
+    Uint8 width;
     float speed;
+    bool draw_box;
 
     double life,
            life_total;
