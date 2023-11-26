@@ -125,9 +125,12 @@ void Game::draw()
     press_a_texture.render(TEXT_PADDING, TEXT_PADDING * 4 + FONT_SIZE * 3);
     if (!space_pressed)
     {
-        press_spacebar_texture.render(
-            get_window_rect().w / 2.0f - press_spacebar_texture.get_width() / 2.0f,
-            get_window_rect().h / 3.0f - press_spacebar_texture.get_height() / 2.0f);
+        float screen_width = static_cast<float>(get_window_rect().w);
+        float screen_height = static_cast<float>(get_window_rect().h);
+        float width = static_cast<float>(press_spacebar_texture.get_width());
+        float height = static_cast<float>(press_spacebar_texture.get_height());
+        press_spacebar_texture.render(screen_width / 2.0f - width / 2.0f,
+                                      screen_height / 3.0f - height / 2.0f);
     }
     
 }

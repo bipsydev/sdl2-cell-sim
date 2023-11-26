@@ -111,7 +111,7 @@ void Cell::draw(GPU_Target * gpu)
     // load and render the text label!
     text_label.load_text("HP: " + round_to(life, 1) + " / " + round_to(life_total, 1),
                          life < 1.0? WHITE : BLACK);
-    text_label.render(pos.x - text_label.get_width()/2, pos.y - text_label.get_height()/2);
+    text_label.render(pos.x - static_cast<float>(text_label.get_width())/2.0f, pos.y - static_cast<float>(text_label.get_height())/2.0f);
 }
 
 } // namespace LCode
