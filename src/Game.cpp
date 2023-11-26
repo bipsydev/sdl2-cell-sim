@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <string>
 #include <cstdlib>
 
 namespace LCode
@@ -21,6 +22,7 @@ Game::Game()
 : SDLBaseGame(SCREEN_WIDTH, SCREEN_HEIGHT, FONT_SIZE),
   fps_avg_texture{}, fps_cur_texture{}, load_time_texture{},
   press_spacebar_texture{}, press_a_texture{},
+  entity_count_texture{},
   paused{true},
   space_pressed{false},
   time_text_avg{}, time_text_cur{}
@@ -95,6 +97,8 @@ void Game::update()
     time_text_cur.str("");
     time_text_cur << "Current FPS: " << round_to(cur_fps, 1);
 
+
+
     // update game entities only if unpaused
     if (!paused)
     {
@@ -114,6 +118,7 @@ void Game::draw()
     {
         std::cerr << "Unable to render FPS Texture!\n";
     }
+    entity_count_texture.load_text("Entities: " + std::to_string(get_entities().size()));
 
     // draw all game entities
     draw_entities();
@@ -122,7 +127,8 @@ void Game::draw()
     load_time_texture.render(TEXT_PADDING, TEXT_PADDING);
     fps_avg_texture.render(TEXT_PADDING, TEXT_PADDING * 2 + FONT_SIZE);
     fps_cur_texture.render(TEXT_PADDING, TEXT_PADDING * 3 + FONT_SIZE * 2);
-    press_a_texture.render(TEXT_PADDING, TEXT_PADDING * 4 + FONT_SIZE * 3);
+    entity_count_texture.render(TEXT_PADDING, TEXT_PADDING * 4 + FONT_SIZE * 3);
+    press_a_texture.render(TEXT_PADDING, TEXT_PADDING * 5 + FONT_SIZE * 4);
     if (!space_pressed)
     {
         float screen_width = static_cast<float>(get_window_rect().w);

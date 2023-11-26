@@ -23,7 +23,8 @@ class Game : public SDLBaseGame
              fps_cur_texture,
              load_time_texture,
              press_spacebar_texture,
-             press_a_texture;
+             press_a_texture,
+             entity_count_texture;
 
     // Game Variables
     bool paused;

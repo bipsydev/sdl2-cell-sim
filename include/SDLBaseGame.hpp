@@ -229,6 +229,8 @@ protected:
 
     // -------- ENTITY CONTROL METHODS --------
 
+    const std::vector<LEntity *> & get_entities() const;
+
     /**
      * @brief Calls `update()` on every `LEntity` within the `entities` vector.
      */

@@ -194,6 +194,12 @@ void SDLBaseGame::free()
 }
 
 
+const std::vector<LEntity *> & SDLBaseGame::get_entities() const
+{
+    return entities;
+}
+
+
 LEntity * SDLBaseGame::add_entity(LEntity * new_entity)
 {
     entities.push_back(new_entity);
