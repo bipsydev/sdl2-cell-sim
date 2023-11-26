@@ -2,6 +2,7 @@
 #include "Game.hpp"
 #include "random.hpp"
 #include "sdl_math.hpp"
+#include "lilyutils.hpp"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_gpu.h>
@@ -108,8 +109,9 @@ void Cell::draw(GPU_Target * gpu)
     }
 
     // load and render the text label!
-    text_label.load_text("Life: " + std::to_string(life) + " / " + std::to_string(life_total));
-    text_label.render(pos.x, pos.y);
+    text_label.load_text("HP: " + round_to(life, 1) + " / " + round_to(life_total, 1),
+                         life < 1.0? WHITE : BLACK);
+    text_label.render(pos.x - text_label.get_width()/2, pos.y - text_label.get_height()/2);
 }
 
 } // namespace LCode

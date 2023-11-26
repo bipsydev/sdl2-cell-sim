@@ -3,6 +3,7 @@
 #include "LException.hpp"
 #include "entities/Cell.hpp"
 #include "random.hpp"
+#include "lilyutils.hpp"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
@@ -30,7 +31,7 @@ Game::Game()
     double load_time_ms = load_timer.get_ms();
 
     std::stringstream load_time_text;
-    load_time_text << "time to load: " << load_time_ms << " ms";
+    load_time_text << "time to load: " << round_to(load_time_ms, 0) << " ms";
     load_time_texture.load_text(load_time_text.str(), TEXT_COLOR);
 }
 
@@ -89,10 +90,10 @@ void Game::update()
 {
     // Update text
     time_text_avg.str("");
-    time_text_avg << "Average FPS: " << avg_fps;
+    time_text_avg << "Average FPS: " << round_to(avg_fps, 2);
 
     time_text_cur.str("");
-    time_text_cur << "Current FPS: " << cur_fps;
+    time_text_cur << "Current FPS: " << round_to(cur_fps, 1);
 
     // update game entities only if unpaused
     if (!paused)
@@ -121,12 +122,12 @@ void Game::draw()
     load_time_texture.render(TEXT_PADDING, TEXT_PADDING);
     fps_avg_texture.render(TEXT_PADDING, TEXT_PADDING * 2 + FONT_SIZE);
     fps_cur_texture.render(TEXT_PADDING, TEXT_PADDING * 3 + FONT_SIZE * 2);
-    press_a_texture.render(TEXT_PADDING,
-                            TEXT_PADDING * 4 + FONT_SIZE * 3);
+    press_a_texture.render(TEXT_PADDING, TEXT_PADDING * 4 + FONT_SIZE * 3);
     if (!space_pressed)
     {
-        press_spacebar_texture.render(TEXT_PADDING,
-                                        TEXT_PADDING * 5 + FONT_SIZE * 4);
+        press_spacebar_texture.render(
+            get_window_rect().w / 2.0f - press_spacebar_texture.get_width() / 2.0f,
+            get_window_rect().h / 3.0f - press_spacebar_texture.get_height() / 2.0f);
     }
     
 }

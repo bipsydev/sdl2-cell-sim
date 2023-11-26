@@ -14,6 +14,7 @@ namespace LCode
 class Cell : public LEntity
 {
     static inline SDL_Color BLACK{0x00, 0x00, 0x00, 0xFF};
+    static inline SDL_Color WHITE{0xFF, 0xFF, 0xFF, 0xFF};
 
     SDL_FPoint velocity;
 
